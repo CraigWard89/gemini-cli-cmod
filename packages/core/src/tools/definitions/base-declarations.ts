@@ -33,3 +33,4 @@ export const ASK_USER_TOOL_NAME = 'ask_user';
 export const EXIT_PLAN_MODE_TOOL_NAME = 'exit_plan_mode';
 export const ENTER_PLAN_MODE_TOOL_NAME = 'enter_plan_mode';
 export const GET_TIME_TOOL_NAME = 'get_time';
+export const DIFF_TOOL_NAME = 'diff';

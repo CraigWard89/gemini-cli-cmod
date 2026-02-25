@@ -39,6 +39,7 @@ export {
   EXIT_PLAN_MODE_TOOL_NAME,
   ENTER_PLAN_MODE_TOOL_NAME,
   GET_TIME_TOOL_NAME,
+  DIFF_TOOL_NAME,
 } from './base-declarations.js';
 
 // Re-export sets for compatibility
@@ -174,6 +175,13 @@ export const GET_TIME_DEFINITION: ToolDefinition = {
     return DEFAULT_LEGACY_SET.get_time;
   },
   overrides: (modelId) => getToolSet(modelId).get_time,
+};
+
+export const DIFF_DEFINITION: ToolDefinition = {
+  get base() {
+    return DEFAULT_LEGACY_SET.diff;
+  },
+  overrides: (modelId) => getToolSet(modelId).diff,
 };
 
 // ============================================================================

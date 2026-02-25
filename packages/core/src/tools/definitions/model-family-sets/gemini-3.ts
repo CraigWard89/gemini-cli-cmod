@@ -26,6 +26,7 @@ import {
   ASK_USER_TOOL_NAME,
   ENTER_PLAN_MODE_TOOL_NAME,
   GET_TIME_TOOL_NAME,
+  DIFF_TOOL_NAME,
 } from '../base-declarations.js';
 import {
   getShellDeclaration,
@@ -649,6 +650,31 @@ The agent did not use the todo list because this task could be completed by a ti
     parametersJsonSchema: {
       type: 'object',
       properties: {},
+    },
+  },
+
+  diff: {
+    name: DIFF_TOOL_NAME,
+    description:
+      'Compares two files or directories and returns the differences.',
+    parametersJsonSchema: {
+      type: 'object',
+      properties: {
+        path1: {
+          type: 'string',
+          description: 'The first file or directory path to compare.',
+        },
+        path2: {
+          type: 'string',
+          description: 'The second file or directory path to compare.',
+        },
+        recursive: {
+          type: 'boolean',
+          description:
+            'Whether to compare directories recursively. Defaults to true.',
+        },
+      },
+      required: ['path1', 'path2'],
     },
   },
 

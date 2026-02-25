@@ -20,9 +20,9 @@ import {
   GET_INTERNAL_DOCS_TOOL_NAME,
   ACTIVATE_SKILL_TOOL_NAME,
   ASK_USER_TOOL_NAME,
-  EXIT_PLAN_MODE_TOOL_NAME,
   ENTER_PLAN_MODE_TOOL_NAME,
   GET_TIME_TOOL_NAME,
+  DIFF_TOOL_NAME,
 } from './definitions/coreTools.js';
 
 export {
@@ -44,6 +44,7 @@ export {
   EXIT_PLAN_MODE_TOOL_NAME,
   ENTER_PLAN_MODE_TOOL_NAME,
   GET_TIME_TOOL_NAME,
+  DIFF_TOOL_NAME,
 };
 
 export const LS_TOOL_NAME_LEGACY = 'list_directory'; // Just to be safe if anything used the old exported name directly
@@ -113,6 +114,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [
   ENTER_PLAN_MODE_TOOL_NAME,
   EXIT_PLAN_MODE_TOOL_NAME,
   GET_TIME_TOOL_NAME,
+  DIFF_TOOL_NAME,
 ] as const;
 
 /**

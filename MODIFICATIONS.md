@@ -36,6 +36,9 @@ distinguishing it from the
     `read_file`.
 - **Added `get_time` Tool**: Added a new built-in tool that returns the local
   system's current time and date in multiple formats (Local, ISO, Full).
+- **Added `diff` Tool**: Added a new built-in tool for comparing two files or
+  directories. It provides unified diff output for files and a comparison
+  summary for directories (identifying added, removed, and modified files).
 
 ## Repository and Distribution
 

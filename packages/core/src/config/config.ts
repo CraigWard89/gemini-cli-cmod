@@ -35,6 +35,7 @@ import { MemoryTool, setGeminiMdFilename } from '../tools/memoryTool.js';
 import { WebSearchTool } from '../tools/web-search.js';
 import { AskUserTool } from '../tools/ask-user.js';
 import { GetTimeTool } from '../tools/get-time.js';
+import { DiffTool } from '../tools/diff.js';
 import { ExitPlanModeTool } from '../tools/exit-plan-mode.js';
 import { EnterPlanModeTool } from '../tools/enter-plan-mode.js';
 import { GeminiClient } from '../core/client.js';
@@ -2723,6 +2724,9 @@ export class Config {
     );
     maybeRegister(GetTimeTool, () =>
       registry.registerTool(new GetTimeTool(this.messageBus)),
+    );
+    maybeRegister(DiffTool, () =>
+      registry.registerTool(new DiffTool(this, this.messageBus)),
     );
     if (this.getUseWriteTodos()) {
       maybeRegister(WriteTodosTool, () =>
