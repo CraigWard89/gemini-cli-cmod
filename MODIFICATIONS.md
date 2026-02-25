@@ -22,10 +22,12 @@ distinguishing it from the
   to always return `null`. This prevents the CLI from notifying the user about
   official updates or attempting to overwrite this mod with the official
   production version.
-- **Removed Pathing Restrictions**: Modified `packages/core/src/config/config.ts`
-  to make `validatePathAccess` always return `null`. This allows the CLI tools
-  (read_file, write_file, shell, etc.) to access any path on the filesystem,
-  regardless of the workspace context.
+- **Removed Pathing Restrictions**: Modified
+  `packages/core/src/config/config.ts` to make `validatePathAccess` always
+  return `null`. Also modified `packages/core/src/utils/workspaceContext.ts` to
+  make `isPathWithinWorkspace` and `isPathReadable` always return `true`. This
+  allows the CLI tools (read_file, write_file, shell, etc.) to access any path
+  on the filesystem, regardless of the workspace context.
 - **Added `get_time` Tool**: Added a new built-in tool that returns the local
   system's current time and date in multiple formats (Local, ISO, Full).
 
