@@ -34,11 +34,19 @@ distinguishing it from the
     decisions. If a tool call is leaving the workspace, it is downgraded to
     `ASK_USER`, forcing a confirmation prompt even for "read-only" tools like
     `read_file`.
-- **Added `get_time` Tool**: Added a new built-in tool that returns the local
-  system's current time and date in multiple formats (Local, ISO, Full).
-- **Added `diff` Tool**: Added a new built-in tool for comparing two files or
-  directories. It provides unified diff output for files and a comparison
-  summary for directories (identifying added, removed, and modified files).
+    - **Bulk File Operations & Parallelism**:
+    - **`read_file`**: Enhanced to support an optional `files` array for reading
+      multiple files in parallel.
+    - **`write_file`**: Enhanced to support an optional `files` array for
+      writing multiple files in parallel.
+    - These improvements reduce the number of tool calls (turns) needed for
+      multi-file operations, conserving context and tokens.
+    - **Added `get_time` Tool**: Added a new built-in tool that returns the
+      local system's current time and date in multiple formats (Local, ISO,
+      Full).
+    - **Added `diff` Tool**: Added a new built-in tool for comparing two files
+      or directories. It provides unified diff output for files and a comparison
+      summary for directories (identifying added, removed, and modified files).
 
 ## Repository and Distribution
 

@@ -37,48 +37,80 @@ import {
 export const DEFAULT_LEGACY_SET: CoreToolSet = {
   read_file: {
     name: READ_FILE_TOOL_NAME,
-    description: `Reads and returns the content of a specified file. If the file is large, the content will be truncated. The tool's response will clearly indicate if truncation has occurred and will provide details on how to read more of the file using the 'start_line' and 'end_line' parameters. Handles text, images (PNG, JPG, GIF, WEBP, SVG, BMP), audio files (MP3, WAV, AIFF, AAC, OGG, FLAC), and PDF files. For text files, it can read specific line ranges.`,
+    description: `Reads and returns the content of specified files. If a file is large, the content will be truncated. Handles text, images, audio, and PDF files. For text files, it can read specific line ranges. Supports bulk reading multiple files in parallel.`,
     parametersJsonSchema: {
       type: 'object',
       properties: {
         file_path: {
-          description: 'The path to the file to read.',
+          description:
+            'The path to a single file to read (for single file mode).',
           type: 'string',
         },
         start_line: {
           description:
-            'Optional: The 1-based line number to start reading from.',
+            'Optional: The 1-based line number to start reading from (single file mode).',
           type: 'number',
         },
         end_line: {
           description:
-            'Optional: The 1-based line number to end reading at (inclusive).',
+            'Optional: The 1-based line number to end reading at (inclusive, single file mode).',
           type: 'number',
         },
+        files: {
+          description:
+            'Optional: List of files to read in parallel (bulk mode).',
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              file_path: { type: 'string', description: 'Path to the file.' },
+              start_line: {
+                type: 'number',
+                description: 'Optional start line.',
+              },
+              end_line: { type: 'number', description: 'Optional end line.' },
+            },
+            required: ['file_path'],
+          },
+        },
       },
-      required: ['file_path'],
     },
   },
 
   write_file: {
     name: WRITE_FILE_TOOL_NAME,
-    description: `Writes content to a specified file in the local filesystem.
+    description: `Writes content to specified file(s) in the local filesystem. Supports writing multiple files in parallel.
 
       The user has the ability to modify \`content\`. If modified, this will be stated in the response.`,
     parametersJsonSchema: {
       type: 'object',
       properties: {
         file_path: {
-          description: 'The path to the file to write to.',
+          description: 'The path to the file to write to (single file mode).',
           type: 'string',
         },
         content: {
           description:
-            "The content to write to the file. Do not use omission placeholders like '(rest of methods ...)', '...', or 'unchanged code'; provide complete literal content.",
+            "The content to write to the file (single file mode). Do not use omission placeholders like '(rest of methods ...)', '...', or 'unchanged code'; provide complete literal content.",
           type: 'string',
         },
+        files: {
+          description:
+            'Optional: List of files to write in parallel (bulk mode).',
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              file_path: { type: 'string', description: 'Path to the file.' },
+              content: {
+                type: 'string',
+                description: 'Complete literal content to write.',
+              },
+            },
+            required: ['file_path', 'content'],
+          },
+        },
       },
-      required: ['file_path', 'content'],
     },
   },
 
