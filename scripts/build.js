@@ -39,25 +39,32 @@ if (!existsSync(join(root, 'node_modules'))) {
 }
 
 async function build() {
-  console.log('Building all workspaces/packages...');
+  const mode = process.argv[2] || 'dev';
+  console.log(`Building all workspaces/packages in ${mode} mode...`);
 
-  // Step 0: Update version to latest dev timestamp
-  console.log('Updating version...');
-  try {
-    // Try python then python3
+  // Step 0: Update version to latest dev timestamp (only in release mode)
+  if (mode === 'release') {
+    console.log('Updating version...');
     try {
-      execSync('python scripts/set-version.py dev', {
-        stdio: 'inherit',
-        cwd: root,
-      });
-    } catch {
-      execSync('python3 scripts/set-version.py dev', {
-        stdio: 'inherit',
-        cwd: root,
-      });
+      // Try python then python3
+      try {
+        execSync('python scripts/set-version.py dev', {
+          stdio: 'inherit',
+          cwd: root,
+        });
+      } catch {
+        execSync('python3 scripts/set-version.py dev', {
+          stdio: 'inherit',
+          cwd: root,
+        });
+      }
+    } catch (_err) {
+      console.warn(
+        'Failed to update version, continuing with current version.',
+      );
     }
-  } catch (_err) {
-    console.warn('Failed to update version, continuing with current version.');
+  } else {
+    console.log('Skipping version update (dev mode).');
   }
 
   // Step 1: Generate commit info
