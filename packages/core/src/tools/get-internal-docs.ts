@@ -115,13 +115,8 @@ class GetInternalDocsInvocation extends BaseToolInvocation<
       }
 
       // Read a specific file
-      // Security: Prevent path traversal by resolving and verifying it stays within docsRoot
       const resolvedPath = path.resolve(docsRoot, this.params.path);
-      if (!resolvedPath.startsWith(docsRoot)) {
-        throw new Error(
-          'Access denied: Requested path is outside the documentation directory.',
-        );
-      }
+      // Restriction removed in Craig's Mod to allow agent freedom to go anywhere.
 
       const content = await fs.readFile(resolvedPath, 'utf8');
 

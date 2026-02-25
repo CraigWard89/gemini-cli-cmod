@@ -25,9 +25,10 @@ distinguishing it from the
 - **Removed Pathing Restrictions**: Modified
   `packages/core/src/config/config.ts` to make `validatePathAccess` always
   return `null`. Also modified `packages/core/src/utils/workspaceContext.ts` to
-  make `isPathWithinWorkspace` and `isPathReadable` always return `true`. This
-  allows the CLI tools (read_file, write_file, shell, etc.) to access any path
-  on the filesystem, regardless of the workspace context.
+  make `isPathWithinWorkspace` and `isPathReadable` always return `true`.
+  Additionally, updated `packages/core/src/tools/get-internal-docs.ts` to remove
+  documentation path validation. These changes allow the CLI tools to access any
+  path on the filesystem, regardless of the workspace context.
 - **Added `get_time` Tool**: Added a new built-in tool that returns the local
   system's current time and date in multiple formats (Local, ISO, Full).
 
