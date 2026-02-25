@@ -59,6 +59,29 @@ distinguishing it from the
       or directories. It provides unified diff output for files and a comparison
       summary for directories (identifying added, removed, and modified files).
 
+## Build & Reliability
+
+- **UTF-8 BOM Enforcement**: Updated `StandardFileSystemService` to strictly
+  strip the UTF-8 BOM when reading files and prevent its introduction when
+  writing. This ensures consistent text processing across different operating
+  systems.
+- **Non-Interactive Build Infrastructure**:
+  - Modified `scripts/build.js`, `scripts/build_sandbox.js`, and
+    `scripts/build_vscode_companion.js` to operate in a fully non-interactive
+    mode (setting `CI=true`, using `--yes`, `--no-audit`, and `--no-fund`).
+  - Fixed workspace mapping in the build script to correctly handle packages
+    with custom names (e.g., `@google/gemini-cli` and
+    `gemini-cli-vscode-ide-companion`).
+- **Dynamic Build-Time Versioning**:
+  - Integrated `scripts/set-version.py` directly into the build process.
+  - Added support for build modes:
+    - `npm run build:dev` (Default): Skips versioning for faster iteration.
+    - `npm run build:release`: Updates all `package.json` files and
+      `package-lock.json` with a fresh development timestamp before building.
+- **Improved Code Quality**: Fixed multiple TypeScript syntax and linting errors
+  in core tools and services (e.g., `diff.ts`, `message-bus.ts`,
+  `write-file.ts`) to ensure a clean build.
+
 ## Repository and Distribution
 
 - **Independent Repository**: Forked/Re-initialized as a separate repository at
