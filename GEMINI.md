@@ -61,6 +61,7 @@ powerful tool for developers.
 
 ## Development Conventions
 
+- **Only build and commit changes when explicitly asked.**
 - **Legacy Snippets:** `packages/core/src/prompts/snippets.legacy.ts` is a
   snapshot of an older system prompt. Avoid changing the prompting verbiage to
   preserve its historical behavior; however, structural changes to ensure

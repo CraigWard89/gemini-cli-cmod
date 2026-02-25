@@ -256,8 +256,11 @@ export function runSensitiveKeywordLinter() {
 
   function getChangedFiles() {
     const baseRef = process.env.GITHUB_BASE_REF || 'main';
+    const isCI = !!process.env.CI || !!process.env.GITHUB_ACTIONS;
     try {
-      execSync(`git fetch origin ${baseRef}`);
+      if (isCI) {
+        execSync(`git fetch origin ${baseRef}`);
+      }
       const mergeBase = execSync(`git merge-base HEAD origin/${baseRef}`)
         .toString()
         .trim();
@@ -393,44 +396,56 @@ export function runTSConfigLinter() {
   }
 }
 
-function main() {
+async function main() {
   const args = process.argv.slice(2);
 
   if (args.includes('--setup')) {
     setupLinters();
   }
+
+  const tasks = [];
+
   if (args.includes('--eslint')) {
-    runESLint();
+    tasks.push(Promise.resolve().then(() => runESLint()));
   }
   if (args.includes('--actionlint')) {
-    runActionlint();
+    tasks.push(Promise.resolve().then(() => runActionlint()));
   }
   if (args.includes('--shellcheck')) {
-    runShellcheck();
+    tasks.push(Promise.resolve().then(() => runShellcheck()));
   }
   if (args.includes('--yamllint')) {
-    runYamllint();
+    tasks.push(Promise.resolve().then(() => runYamllint()));
   }
   if (args.includes('--prettier')) {
-    runPrettier();
+    tasks.push(Promise.resolve().then(() => runPrettier()));
   }
   if (args.includes('--sensitive-keywords')) {
-    runSensitiveKeywordLinter();
+    tasks.push(Promise.resolve().then(() => runSensitiveKeywordLinter()));
   }
   if (args.includes('--tsconfig')) {
-    runTSConfigLinter();
+    tasks.push(Promise.resolve().then(() => runTSConfigLinter()));
   }
 
   if (args.length === 0) {
     setupLinters();
-    runESLint();
-    runActionlint();
-    runShellcheck();
-    runYamllint();
-    runPrettier();
-    runSensitiveKeywordLinter();
-    runTSConfigLinter();
-    console.log('\nAll linting checks passed!');
+    tasks.push(Promise.resolve().then(() => runESLint()));
+    tasks.push(Promise.resolve().then(() => runActionlint()));
+    tasks.push(Promise.resolve().then(() => runShellcheck()));
+    tasks.push(Promise.resolve().then(() => runYamllint()));
+    tasks.push(Promise.resolve().then(() => runPrettier()));
+    tasks.push(Promise.resolve().then(() => runSensitiveKeywordLinter()));
+    tasks.push(Promise.resolve().then(() => runTSConfigLinter()));
+  }
+
+  try {
+    await Promise.all(tasks);
+    if (tasks.length > 0) {
+      console.log('\nAll linting checks passed!');
+    }
+  } catch (_error) {
+    console.error('\nLinting failed.');
+    process.exit(1);
   }
 }
 

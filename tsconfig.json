@@ -27,5 +27,14 @@
     "target": "es2022",
     "types": ["node", "vitest/globals"],
     "jsx": "react-jsx"
-  }
+  },
+  "references": [
+    { "path": "packages/core" },
+    { "path": "packages/cli" },
+    { "path": "packages/sdk" },
+    { "path": "packages/test-utils" },
+    { "path": "packages/a2a-server" },
+    { "path": "packages/devtools" }
+  ],
+  "files": []
 }
