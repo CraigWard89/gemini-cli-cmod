@@ -2254,8 +2254,7 @@ export class Config {
 
     const resolvedPath = realpath(absolutePath);
 
-    const workspaceContext = this.getWorkspaceContext();
-    if (workspaceContext.isPathWithinWorkspace(resolvedPath)) {
+    if (this.isPathWithinWorkspace(resolvedPath)) {
       return true;
     }
 
@@ -2263,6 +2262,43 @@ export class Config {
     const resolvedTempDir = realpath(projectTempDir);
 
     return isSubpath(resolvedTempDir, resolvedPath);
+  }
+
+  /**
+   * Craig's Mod: Checks if a path is within the workspace context.
+   */
+  isPathWithinWorkspace(absolutePath: string): boolean {
+    return this.workspaceContext.isPathWithinWorkspace(absolutePath);
+  }
+
+  /**
+   * Craig's Mod: Checks if a tool call is attempting to access paths outside the workspace.
+   */
+  isLeavingWorkspace(toolCall: { name: string; args: unknown }): boolean {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+    const args = toolCall.args as Record<string, unknown>;
+    if (!args) return false;
+
+    const pathsToCheck: string[] = [];
+
+    // Extract potential paths from common tool arguments
+    if (typeof args['file_path'] === 'string')
+      pathsToCheck.push(args['file_path']);
+    if (typeof args['dir_path'] === 'string')
+      pathsToCheck.push(args['dir_path']);
+    if (typeof args['path'] === 'string') pathsToCheck.push(args['path']);
+    if (typeof args['destination'] === 'string')
+      pathsToCheck.push(args['destination']);
+    if (Array.isArray(args['files'])) {
+      args['files'].forEach((f: unknown) => {
+        if (typeof f === 'string') pathsToCheck.push(f);
+      });
+    }
+
+    return pathsToCheck.some((p) => {
+      const resolved = path.resolve(this.getTargetDir(), p);
+      return !this.isPathAllowed(resolved);
+    });
   }
 
   /**

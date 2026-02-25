@@ -27,10 +27,13 @@ distinguishing it from the
   dynamic "ask permission" flow.
   - Reverted silent pathing restrictions in `packages/core/src/config/config.ts`
     and `packages/core/src/utils/workspaceContext.ts`.
-  - Modified `packages/core/src/confirmation-bus/message-bus.ts` to intercept
-    tool calls. If a tool (like `read_file`, `shell`, `ls`) attempts to access a
-    path outside the defined workspace, the decision is downgraded to
-    `ASK_USER`, triggering a confirmation dialog in the UI.
+  - Added centralized `isLeavingWorkspace` logic in `Config.ts` to identify tool
+    calls targeting files outside the workspace.
+  - Modified `packages/core/src/core/coreToolScheduler.ts` and
+    `packages/core/src/confirmation-bus/message-bus.ts` to intercept `ALLOW`
+    decisions. If a tool call is leaving the workspace, it is downgraded to
+    `ASK_USER`, forcing a confirmation prompt even for "read-only" tools like
+    `read_file`.
 - **Added `get_time` Tool**: Added a new built-in tool that returns the local
   system's current time and date in multiple formats (Local, ISO, Full).
 

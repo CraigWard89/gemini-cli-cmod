@@ -57,11 +57,19 @@ export class MessageBus extends EventEmitter {
       }
 
       if (message.type === MessageBusType.TOOL_CONFIRMATION_REQUEST) {
-        const { decision } = await this.policyEngine.check(
+        let { decision } = await this.policyEngine.check(
           message.toolCall,
           message.serverName,
           message.toolAnnotations,
         );
+
+        // Craig's Mod: Downgrade ALLOW to ASK_USER if leaving workspace
+        if (
+          decision === PolicyDecision.ALLOW &&
+          this.config?.isLeavingWorkspace(message.toolCall)
+        ) {
+          decision = PolicyDecision.ASK_USER;
+        }
 
         switch (decision) {
           case PolicyDecision.ALLOW:

@@ -626,9 +626,19 @@ export class CoreToolScheduler {
             : undefined;
         const toolAnnotations = toolCall.tool.toolAnnotations;
 
-        const { decision, rule } = await this.config
+        const checkResult = await this.config
           .getPolicyEngine()
           .check(toolCallForPolicy, serverName, toolAnnotations);
+        let { decision } = checkResult;
+        const { rule } = checkResult;
+
+        // Craig's Mod: Downgrade ALLOW to ASK_USER if leaving workspace
+        if (
+          decision === PolicyDecision.ALLOW &&
+          this.config.isLeavingWorkspace(toolCallForPolicy)
+        ) {
+          decision = PolicyDecision.ASK_USER;
+        }
 
         if (decision === PolicyDecision.DENY) {
           const { errorMessage, errorType } = getPolicyDenialError(
