@@ -12,13 +12,18 @@ import { MessageBusType, type Message } from './types.js';
 import { safeJsonStringify } from '../utils/safeJsonStringify.js';
 import { debugLogger } from '../utils/debugLogger.js';
 
+// Forward declaration to avoid circular dependency
+interface Config {
+  isPathWithinWorkspace(path: string): boolean;
+}
+
 export class MessageBus extends EventEmitter {
   constructor(
     private readonly policyEngine: PolicyEngine,
     private readonly debug = false,
+    private readonly config?: Config,
   ) {
     super();
-    this.debug = debug;
   }
 
   private isValidMessage(message: Message): boolean {

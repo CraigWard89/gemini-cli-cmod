@@ -22,13 +22,15 @@ distinguishing it from the
   to always return `null`. This prevents the CLI from notifying the user about
   official updates or attempting to overwrite this mod with the official
   production version.
-- **Removed Pathing Restrictions**: Modified
-  `packages/core/src/config/config.ts` to make `validatePathAccess` always
-  return `null`. Also modified `packages/core/src/utils/workspaceContext.ts` to
-  make `isPathWithinWorkspace` and `isPathReadable` always return `true`.
-  Additionally, updated `packages/core/src/tools/get-internal-docs.ts` to remove
-  documentation path validation. These changes allow the CLI tools to access any
-  path on the filesystem, regardless of the workspace context.
+- **Ask Permission for Workspace Exit**: Instead of blocking or silently
+  allowing access to files outside the workspace, Craig's Mod implements a
+  dynamic "ask permission" flow.
+  - Reverted silent pathing restrictions in `packages/core/src/config/config.ts`
+    and `packages/core/src/utils/workspaceContext.ts`.
+  - Modified `packages/core/src/confirmation-bus/message-bus.ts` to intercept
+    tool calls. If a tool (like `read_file`, `shell`, `ls`) attempts to access a
+    path outside the defined workspace, the decision is downgraded to
+    `ASK_USER`, triggering a confirmation dialog in the UI.
 - **Added `get_time` Tool**: Added a new built-in tool that returns the local
   system's current time and date in multiple formats (Local, ISO, Full).
 

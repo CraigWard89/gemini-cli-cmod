@@ -937,7 +937,7 @@ export class Config {
       ConsecaSafetyChecker.getInstance().setConfig(this);
     }
 
-    this.messageBus = new MessageBus(this.policyEngine, this.debugMode);
+    this.messageBus = new MessageBus(this.policyEngine, this.debugMode, this);
     this.acknowledgedAgentsService = new AcknowledgedAgentsService();
     this.skillManager = new SkillManager();
     this.outputSettings = {

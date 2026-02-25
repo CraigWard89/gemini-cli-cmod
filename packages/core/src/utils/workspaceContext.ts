@@ -178,9 +178,19 @@ export class WorkspaceContext {
    * @param pathToCheck The path to validate
    * @returns True if the path is within the workspace, false otherwise
    */
-  isPathWithinWorkspace(_pathToCheck: string): boolean {
-    // Restrictions removed in Craig's Mod to allow agent freedom to go anywhere.
-    return true;
+  isPathWithinWorkspace(pathToCheck: string): boolean {
+    try {
+      const fullyResolvedPath = this.fullyResolvedPath(pathToCheck);
+
+      for (const dir of this.directories) {
+        if (this.isPathWithinRoot(fullyResolvedPath, dir)) {
+          return true;
+        }
+      }
+      return false;
+    } catch (_error) {
+      return false;
+    }
   }
 
   /**
@@ -189,9 +199,26 @@ export class WorkspaceContext {
    * @param pathToCheck The path to validate
    * @returns True if the path is readable, false otherwise
    */
-  isPathReadable(_pathToCheck: string): boolean {
-    // Restrictions removed in Craig's Mod to allow agent freedom to go anywhere.
-    return true;
+  isPathReadable(pathToCheck: string): boolean {
+    if (this.isPathWithinWorkspace(pathToCheck)) {
+      return true;
+    }
+    try {
+      const fullyResolvedPath = this.fullyResolvedPath(pathToCheck);
+
+      for (const allowedPath of this.readOnlyPaths) {
+        // Allow exact matches or subpaths (if allowedPath is a directory)
+        if (
+          fullyResolvedPath === allowedPath ||
+          this.isPathWithinRoot(fullyResolvedPath, allowedPath)
+        ) {
+          return true;
+        }
+      }
+      return false;
+    } catch (_error) {
+      return false;
+    }
   }
 
   /**
