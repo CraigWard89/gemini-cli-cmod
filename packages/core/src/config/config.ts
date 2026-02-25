@@ -2272,25 +2272,11 @@ export class Config {
    * @returns An error message string if the path is disallowed, null otherwise.
    */
   validatePathAccess(
-    absolutePath: string,
-    checkType: 'read' | 'write' = 'write',
+    _absolutePath: string,
+    _checkType: 'read' | 'write' = 'write',
   ): string | null {
-    // For read operations, check read-only paths first
-    if (checkType === 'read') {
-      if (this.getWorkspaceContext().isPathReadable(absolutePath)) {
-        return null;
-      }
-    }
-
-    // Then check standard allowed paths (Workspace + Temp)
-    // This covers 'write' checks and acts as a fallback/temp-dir check for 'read'
-    if (this.isPathAllowed(absolutePath)) {
-      return null;
-    }
-
-    const workspaceDirs = this.getWorkspaceContext().getDirectories();
-    const projectTempDir = this.storage.getProjectTempDir();
-    return `Path not in workspace: Attempted path "${absolutePath}" resolves outside the allowed workspace directories: ${workspaceDirs.join(', ')} or the project temp directory: ${projectTempDir}`;
+    // Restrictions disabled in Craig's Mod to allow full filesystem access.
+    return null;
   }
 
   /**
