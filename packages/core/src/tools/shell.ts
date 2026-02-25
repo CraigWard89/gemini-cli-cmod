@@ -469,8 +469,11 @@ export class ShellTool extends BaseDeclarativeTool<
   static readonly Name = SHELL_TOOL_NAME;
 
   constructor(
-    private readonly config: Config,
+    protected readonly config: Config,
     messageBus: MessageBus,
+    name: string = ShellTool.Name,
+    displayName: string = 'Shell',
+    description?: string,
   ) {
     void initializeShellParsers().catch(() => {
       // Errors are surfaced when parsing commands.
@@ -480,9 +483,9 @@ export class ShellTool extends BaseDeclarativeTool<
       config.getEnableShellOutputEfficiency(),
     );
     super(
-      ShellTool.Name,
-      'Shell',
-      definition.base.description!,
+      name,
+      displayName,
+      description ?? definition.base.description!,
       Kind.Execute,
       definition.base.parametersJsonSchema,
       messageBus,
@@ -552,10 +555,13 @@ export class PowerShellTool extends ShellTool {
   static readonly PowerShellName = 'run_powershell_command';
 
   constructor(config: Config, messageBus: MessageBus) {
-    super(config, messageBus);
-    this.name = PowerShellTool.PowerShellName;
-    this.displayName = 'PowerShell';
-    this.description = 'Executes a command within a PowerShell session.';
+    super(
+      config,
+      messageBus,
+      PowerShellTool.PowerShellName,
+      'PowerShell',
+      'Executes a command within a PowerShell session.',
+    );
   }
 
   protected override createInvocation(

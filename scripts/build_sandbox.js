@@ -86,8 +86,8 @@ if (!image.length) {
 }
 
 if (!argv.s) {
-  execSync('npm install', { stdio: 'inherit' });
-  execSync('npm run build --workspaces', { stdio: 'inherit' });
+  execSync('npm install --no-audit --no-fund --yes', { stdio: 'inherit' });
+  execSync('npm run build --workspaces --if-present', { stdio: 'inherit' });
 }
 
 console.log('packing @google/gemini-cli ...');

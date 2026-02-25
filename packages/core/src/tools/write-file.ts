@@ -197,9 +197,10 @@ class WriteFileToolInvocation extends BaseToolInvocation<
     if (this.params.files && this.params.files.length > 0) {
       // Bulk mode doesn't support rich diff confirmation yet, falling back to simple prompt
       return {
-        type: 'confirm',
+        type: 'info',
         title: 'Confirm Bulk Write',
-        message: `Write ${this.params.files.length} files in parallel?`,
+        prompt: `Write ${this.params.files.length} files in parallel?`,
+        onConfirm: async () => {},
       };
     }
 
@@ -360,9 +361,10 @@ class WriteFileToolInvocation extends BaseToolInvocation<
     );
 
     let llmContent = successful
-      .map((r) => 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-         (r as { file_path: string; llmContent: string }).llmContent
+      .map(
+        (r) =>
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
+          (r as { file_path: string; llmContent: string }).llmContent,
       )
       .join('\n');
     if (failed.length > 0) {

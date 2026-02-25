@@ -15,6 +15,7 @@ import { debugLogger } from '../utils/debugLogger.js';
 // Forward declaration to avoid circular dependency
 interface Config {
   isPathWithinWorkspace(path: string): boolean;
+  isLeavingWorkspace(toolCall: object): boolean;
 }
 
 export class MessageBus extends EventEmitter {
@@ -66,6 +67,7 @@ export class MessageBus extends EventEmitter {
         // Craig's Mod: Downgrade ALLOW to ASK_USER if leaving workspace
         if (
           decision === PolicyDecision.ALLOW &&
+          message.toolCall.name &&
           this.config?.isLeavingWorkspace(message.toolCall)
         ) {
           decision = PolicyDecision.ASK_USER;

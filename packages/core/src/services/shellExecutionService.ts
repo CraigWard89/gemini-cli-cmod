@@ -15,6 +15,7 @@ import { getCachedEncodingForBuffer } from '../utils/systemEncoding.js';
 import {
   getShellConfiguration,
   resolveExecutable,
+  type ShellConfiguration,
   type ShellType,
 } from '../utils/shell-utils.js';
 import { isBinary } from '../utils/textUtils.js';
@@ -306,11 +307,11 @@ export class ShellExecutionService {
   ): ShellExecutionHandle {
     try {
       const isWindows = os.platform() === 'win32';
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+       
       const { executable, argsPrefix, shell } =
         customShellConfig ?? getShellConfiguration();
       const guardedCommand = ensurePromptvarsDisabled(commandToExecute, shell);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+       
       const spawnArgs = [...argsPrefix, guardedCommand];
 
       const child = cpSpawn(executable, spawnArgs, {
@@ -564,7 +565,7 @@ export class ShellExecutionService {
     try {
       const cols = shellExecutionConfig.terminalWidth ?? 80;
       const rows = shellExecutionConfig.terminalHeight ?? 30;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+       
       const { executable, argsPrefix, shell } =
         customShellConfig ?? getShellConfiguration();
 
@@ -576,7 +577,7 @@ export class ShellExecutionService {
       }
 
       const guardedCommand = ensurePromptvarsDisabled(commandToExecute, shell);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+       
       const args = [...argsPrefix, guardedCommand];
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

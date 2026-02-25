@@ -32,10 +32,16 @@ export interface FileSystemService {
  */
 export class StandardFileSystemService implements FileSystemService {
   async readTextFile(filePath: string): Promise<string> {
-    return fs.readFile(filePath, 'utf-8');
+    const content = await fs.readFile(filePath, 'utf-8');
+    // Strip BOM if present
+    return content.startsWith('\uFEFF') ? content.slice(1) : content;
   }
 
   async writeTextFile(filePath: string, content: string): Promise<void> {
-    await fs.writeFile(filePath, content, 'utf-8');
+    // Strip BOM from content before writing if it somehow got in there
+    const cleanContent = content.startsWith('\uFEFF')
+      ? content.slice(1)
+      : content;
+    await fs.writeFile(filePath, cleanContent, 'utf-8');
   }
 }

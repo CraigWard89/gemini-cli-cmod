@@ -27,9 +27,15 @@ const execAsync = promisify(exec);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
 
+// Ensure non-interactive environment for tools that check it
+process.env.CI = 'true';
+
 // npm install if node_modules was removed (e.g. via npm run clean or scripts/clean.js)
 if (!existsSync(join(root, 'node_modules'))) {
-  execSync('npm install', { stdio: 'inherit', cwd: root });
+  execSync('npm install --no-audit --no-fund --yes', {
+    stdio: 'inherit',
+    cwd: root,
+  });
 }
 
 async function build() {
@@ -64,16 +70,23 @@ async function build() {
   console.log(`Building other packages in parallel: ${packages.join(', ')}`);
 
   const buildTasks = packages.map((pkg) => {
+    let workspaceName = `@google/gemini-cli-${pkg}`;
+    if (pkg === 'cli') {
+      workspaceName = '@google/gemini-cli';
+    } else if (pkg === 'vscode-ide-companion') {
+      workspaceName = 'gemini-cli-vscode-ide-companion';
+    }
+
     return execAsync(
-      `npm run build --workspace @google/gemini-cli-${pkg} --if-present`,
-      { cwd: root },
+      `npm run build --workspace ${workspaceName} --if-present`,
+      {
+        cwd: root,
+      },
     )
       .then(() => console.log(`Successfully built ${pkg}`))
       .catch((err) => {
         console.error(`\nERROR: Failed to build package: ${pkg}`);
-        console.error(
-          `Command: npm run build --workspace @google/gemini-cli-${pkg}`,
-        );
+        console.error(`Command: npm run build --workspace ${workspaceName}`);
         console.error('Error Details:', err.stderr || err.message);
         throw new Error(`Build failed for ${pkg}`);
       });
