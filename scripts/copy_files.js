@@ -22,9 +22,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-
-const sourceDir = path.join('src');
-const targetDir = path.join('dist', 'src');
+import { fileURLToPath } from 'node:url';
 
 const extensionsToCopy = ['.md', '.json', '.sb', '.toml'];
 
@@ -47,40 +45,58 @@ function copyFilesRecursive(source, target) {
   }
 }
 
-if (!fs.existsSync(sourceDir)) {
-  console.error(`Source directory ${sourceDir} not found.`);
-  process.exit(1);
+/**
+ * Main copy logic that can be imported and called.
+ * @param {string} cwd The current working directory (package root).
+ */
+export function copyPackageAssets(cwd = process.cwd()) {
+  const sourceDir = path.join(cwd, 'src');
+  const targetDir = path.join(cwd, 'dist', 'src');
+
+  if (!fs.existsSync(sourceDir)) {
+    console.error(`Source directory ${sourceDir} not found.`);
+    return false;
+  }
+
+  copyFilesRecursive(sourceDir, targetDir);
+
+  // Copy example extensions into the bundle.
+  const packageName = path.basename(cwd);
+  if (packageName === 'cli') {
+    const examplesSource = path.join(
+      sourceDir,
+      'commands',
+      'extensions',
+      'examples',
+    );
+    const examplesTarget = path.join(
+      targetDir,
+      'commands',
+      'extensions',
+      'examples',
+    );
+    if (fs.existsSync(examplesSource)) {
+      fs.cpSync(examplesSource, examplesTarget, { recursive: true });
+    }
+  }
+
+  // Copy built-in skills for the core package.
+  if (packageName === 'core') {
+    const builtinSkillsSource = path.join(sourceDir, 'skills', 'builtin');
+    const builtinSkillsTarget = path.join(targetDir, 'skills', 'builtin');
+    if (fs.existsSync(builtinSkillsSource)) {
+      fs.cpSync(builtinSkillsSource, builtinSkillsTarget, { recursive: true });
+    }
+  }
+
+  console.log('Successfully copied files.');
+  return true;
 }
 
-copyFilesRecursive(sourceDir, targetDir);
-
-// Copy example extensions into the bundle.
-const packageName = path.basename(process.cwd());
-if (packageName === 'cli') {
-  const examplesSource = path.join(
-    sourceDir,
-    'commands',
-    'extensions',
-    'examples',
-  );
-  const examplesTarget = path.join(
-    targetDir,
-    'commands',
-    'extensions',
-    'examples',
-  );
-  if (fs.existsSync(examplesSource)) {
-    fs.cpSync(examplesSource, examplesTarget, { recursive: true });
+// Run if called directly
+const isMain = process.argv[1] === fileURLToPath(import.meta.url);
+if (isMain) {
+  if (!copyPackageAssets()) {
+    process.exit(1);
   }
 }
-
-// Copy built-in skills for the core package.
-if (packageName === 'core') {
-  const builtinSkillsSource = path.join(sourceDir, 'skills', 'builtin');
-  const builtinSkillsTarget = path.join(targetDir, 'skills', 'builtin');
-  if (fs.existsSync(builtinSkillsSource)) {
-    fs.cpSync(builtinSkillsSource, builtinSkillsTarget, { recursive: true });
-  }
-}
-
-console.log('Successfully copied files.');

@@ -8,6 +8,9 @@ distinguishing it from the
 
 - **ASCII Art Update**: Modified `packages/cli/src/ui/components/AsciiArt.ts` to
   display "GEMINI CMOD" instead of the standard "GEMINI" logo.
+- **Header Watermark**: Added a `(cmod)` watermark to the `UserIdentity`
+  component, displayed immediately after the user's subscription plan (tier) in
+  the header.
 - **Instructional Documentation**: Updated `README.md`, `GEMINI.md`,
   `ROADMAP.md`, `CONTRIBUTING.md`, and `docs/index.md` to identify the project
   as **Craig's Mod** and include notes regarding its status as a modified
@@ -51,13 +54,16 @@ distinguishing it from the
     - **Robust & Optimized Build Process**:
       - Reworked `scripts/build.js` to run `tsc --build` once at the root level
         using TypeScript project references.
-      - Finalizes packages (asset copying, core-specific docs, etc.) in parallel
-        using a new `--skip-tsc` flag for `scripts/build_package.js`.
-      - This dramatically reduces redundant compilation and speeds up the
-        overall build.
+      - Optimized the build sequence to avoid redundant Node.js process spawns
+        by internalizing `copy_files.js` logic into `build_package.js` and
+        invoking it directly via imports in `build.js`.
+      - Finalizes packages (asset copying, core-specific docs, etc.) in
+        parallel.
+      - This significantly reduces the total number of processes created during
+        a full build, speeding up the process and improving reliability.
       - Added explicit error handling to ensure the build process halts
         immediately if any package fails, with detailed error reporting.
-      - **Optimized Pre-commit Hook**:
+    - **Optimized Pre-commit Hook**:
       - Reworked `scripts/pre-commit.js` to exit early if no files are staged,
         avoiding heavy module loading.
       - Enabled caching for `eslint` and `prettier` within `lint-staged` to

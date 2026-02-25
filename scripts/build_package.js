@@ -20,33 +20,65 @@
 import { execSync } from 'node:child_process';
 import { writeFileSync, existsSync, cpSync } from 'node:fs';
 import { join, basename } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { copyPackageAssets } from './copy_files.js';
 
-if (!process.cwd().includes('packages')) {
-  console.error('must be invoked from a package directory');
-  process.exit(1);
-}
-
-const packageName = basename(process.cwd());
-const skipTsc = process.argv.includes('--skip-tsc');
-
-// build typescript files
-if (!skipTsc) {
-  execSync('tsc --build', { stdio: 'inherit' });
-}
-
-// copy .{md,json} files
-execSync('node ../../scripts/copy_files.js', { stdio: 'inherit' });
-
-// Copy documentation for the core package
-if (packageName === 'core') {
-  const docsSource = join(process.cwd(), '..', '..', 'docs');
-  const docsTarget = join(process.cwd(), 'dist', 'docs');
-  if (existsSync(docsSource)) {
-    cpSync(docsSource, docsTarget, { recursive: true, dereference: true });
-    console.log('Copied documentation to dist/docs');
+/**
+ * Main build logic for a package.
+ * @param {Object} options
+ * @param {boolean} options.skipTsc Whether to skip the TypeScript build step.
+ * @param {string} options.cwd The current working directory (package root).
+ */
+export async function buildPackage({
+  skipTsc = false,
+  cwd = process.cwd(),
+} = {}) {
+  if (!cwd.includes('packages')) {
+    console.error(
+      'must be invoked from a package directory or with correct cwd',
+    );
+    return false;
   }
+
+  const packageName = basename(cwd);
+
+  // build typescript files
+  if (!skipTsc) {
+    execSync('tsc --build', { stdio: 'inherit', cwd });
+  }
+
+  // copy .{md,json} files
+  copyPackageAssets(cwd);
+
+  // Copy documentation for the core package
+  if (packageName === 'core') {
+    const docsSource = join(cwd, '..', '..', 'docs');
+    const docsTarget = join(cwd, 'dist', 'docs');
+    if (existsSync(docsSource)) {
+      cpSync(docsSource, docsTarget, { recursive: true, dereference: true });
+      console.log('Copied documentation to dist/docs');
+    }
+  }
+
+  // touch dist/.last_build
+  const distDir = join(cwd, 'dist');
+  if (!existsSync(distDir)) {
+    execSync('mkdir dist', { cwd });
+  }
+  writeFileSync(join(distDir, '.last_build'), '');
+  return true;
 }
 
-// touch dist/.last_build
-writeFileSync(join(process.cwd(), 'dist', '.last_build'), '');
-process.exit(0);
+// Run if called directly
+const isMain = process.argv[1] === fileURLToPath(import.meta.url);
+if (isMain) {
+  const skipTsc = process.argv.includes('--skip-tsc');
+  buildPackage({ skipTsc })
+    .then((success) => {
+      if (!success) process.exit(1);
+    })
+    .catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
+}

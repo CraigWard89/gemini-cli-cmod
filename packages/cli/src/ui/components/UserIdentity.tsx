@@ -54,6 +54,7 @@ export const UserIdentity: React.FC<UserIdentityProps> = ({ config }) => {
       {tierName && (
         <Text color={theme.text.primary}>
           <Text bold>Plan:</Text> {tierName}
+          <Text dimColor> (cmod)</Text>
         </Text>
       )}
     </Box>

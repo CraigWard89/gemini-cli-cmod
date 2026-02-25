@@ -22,6 +22,7 @@ import { existsSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { buildPackage } from './build_package.js';
 
 const execAsync = promisify(exec);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -69,7 +70,10 @@ async function build() {
 
   // Step 1: Generate commit info
   try {
-    execSync('npm run generate', { stdio: 'inherit', cwd: root });
+    execSync('node scripts/generate-git-commit-info.js', {
+      stdio: 'inherit',
+      cwd: root,
+    });
   } catch (_err) {
     console.error('Failed to generate commit info.');
     process.exit(1);
@@ -92,32 +96,36 @@ async function build() {
 
   console.log(`Finalizing packages in parallel: ${packages.join(', ')}`);
 
-  const buildTasks = packages.map((pkg) => {
-    let workspaceName = `@google/gemini-cli-${pkg}`;
-    if (pkg === 'cli') {
-      workspaceName = '@google/gemini-cli';
-    } else if (pkg === 'vscode-ide-companion') {
-      workspaceName = 'gemini-cli-vscode-ide-companion';
-    }
+  const buildTasks = packages.map(async (pkg) => {
+    const pkgRoot = join(packagesDir, pkg);
 
+    // Some packages need custom build commands
     const isVscode = pkg === 'vscode-ide-companion';
     const isDevtools = pkg === 'devtools';
 
-    let command;
-    if (isVscode || isDevtools) {
-      command = `npm run build --workspace ${workspaceName}`;
-    } else {
-      command = `npm run build --workspace ${workspaceName} --if-present -- --skip-tsc`;
+    try {
+      if (isVscode) {
+        // VSCode companion has a complex build (lint, check-types, esbuild)
+        let workspaceName = 'gemini-cli-vscode-ide-companion';
+        await execAsync(`npm run build --workspace ${workspaceName}`, {
+          cwd: root,
+        });
+      } else if (isDevtools) {
+        // Devtools has its own build chain
+        let workspaceName = '@google/gemini-cli-devtools';
+        await execAsync(`npm run build --workspace ${workspaceName}`, {
+          cwd: root,
+        });
+      } else {
+        // Standard package: use internal buildPackage function to avoid process overhead
+        await buildPackage({ skipTsc: true, cwd: pkgRoot });
+      }
+      console.log(`Successfully finalized ${pkg}`);
+    } catch (err) {
+      console.error(`\nERROR: Failed to finalize package: ${pkg}`);
+      console.error('Error Details:', err.stderr || err.message);
+      throw new Error(`Build failed for ${pkg}`);
     }
-
-    return execAsync(command, { cwd: root })
-      .then(() => console.log(`Successfully finalized ${pkg}`))
-      .catch((err) => {
-        console.error(`\nERROR: Failed to finalize package: ${pkg}`);
-        console.error(`Command: ${command}`);
-        console.error('Error Details:', err.stderr || err.message);
-        throw new Error(`Build failed for ${pkg}`);
-      });
   });
 
   try {
