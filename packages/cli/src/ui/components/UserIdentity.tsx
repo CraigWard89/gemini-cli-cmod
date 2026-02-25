@@ -52,12 +52,9 @@ export const UserIdentity: React.FC<UserIdentityProps> = ({ config }) => {
         <Text color={theme.text.secondary}> /auth</Text>
       </Box>
       {tierName && (
-        <>
-          <Text color={theme.text.primary}>
-            <Text bold>Plan:</Text> {tierName}
-          </Text>
-          <Text dimColor>Thank you for using {"Craig's"} Mod!</Text>
-        </>
+        <Text color={theme.text.primary}>
+          <Text bold>Plan:</Text> {tierName}
+        </Text>
       )}
     </Box>
   );

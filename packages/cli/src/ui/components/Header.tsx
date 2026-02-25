@@ -5,7 +5,7 @@
  */
 
 import type React from 'react';
-import { Box } from 'ink';
+import { Box, Text } from 'ink';
 import { ThemedGradient } from './ThemedGradient.js';
 import { shortAsciiLogo, longAsciiLogo, tinyAsciiLogo } from './AsciiArt.js';
 import { getAsciiArtWidth } from '../utils/textUtils.js';
@@ -49,6 +49,9 @@ export const Header: React.FC<HeaderProps> = ({
       flexDirection="column"
     >
       <ThemedGradient>{title}</ThemedGradient>
+      <Box marginTop={1}>
+        <Text dimColor>Thank you for using {"Craig's"} Mod!</Text>
+      </Box>
       {nightly && (
         <Box width="100%" flexDirection="row" justifyContent="flex-end">
           <ThemedGradient>v{version}</ThemedGradient>
