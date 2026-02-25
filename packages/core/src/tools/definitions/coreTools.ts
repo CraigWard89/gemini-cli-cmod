@@ -38,6 +38,7 @@ export {
   ASK_USER_TOOL_NAME,
   EXIT_PLAN_MODE_TOOL_NAME,
   ENTER_PLAN_MODE_TOOL_NAME,
+  GET_TIME_TOOL_NAME,
 } from './base-declarations.js';
 
 // Re-export sets for compatibility
@@ -166,6 +167,13 @@ export const ENTER_PLAN_MODE_DEFINITION: ToolDefinition = {
     return DEFAULT_LEGACY_SET.enter_plan_mode;
   },
   overrides: (modelId) => getToolSet(modelId).enter_plan_mode,
+};
+
+export const GET_TIME_DEFINITION: ToolDefinition = {
+  get base() {
+    return DEFAULT_LEGACY_SET.get_time;
+  },
+  overrides: (modelId) => getToolSet(modelId).get_time,
 };
 
 // ============================================================================

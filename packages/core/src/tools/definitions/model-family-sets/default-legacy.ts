@@ -25,6 +25,7 @@ import {
   GET_INTERNAL_DOCS_TOOL_NAME,
   ASK_USER_TOOL_NAME,
   ENTER_PLAN_MODE_TOOL_NAME,
+  GET_TIME_TOOL_NAME,
 } from '../base-declarations.js';
 import {
   getShellDeclaration,
@@ -669,6 +670,15 @@ The agent did not use the todo list because this task could be completed by a ti
             'Short reason explaining why you are entering plan mode.',
         },
       },
+    },
+  },
+
+  get_time: {
+    name: GET_TIME_TOOL_NAME,
+    description: "Returns the local system's current time and date.",
+    parametersJsonSchema: {
+      type: 'object',
+      properties: {},
     },
   },
 
