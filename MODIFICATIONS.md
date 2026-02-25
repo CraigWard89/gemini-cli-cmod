@@ -48,6 +48,10 @@ distinguishing it from the
       - **`run_powershell_command`**: Added a dedicated tool for executing
         PowerShell commands, allowing the agent to leverage advanced Windows
         scripting features explicitly.
+    - **Robust Build Process**: Reworked `scripts/build.js` to build
+      `@google/gemini-cli-core` first, followed by other packages in parallel.
+      Added explicit error handling to ensure the build process halts
+      immediately if any package fails, with detailed error reporting.
     - **Added `get_time` Tool**: Added a new built-in tool that returns the
       local system's current time and date in multiple formats (Local, ISO,
       Full).

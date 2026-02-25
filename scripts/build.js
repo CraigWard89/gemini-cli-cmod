@@ -36,14 +36,24 @@ async function build() {
   console.log('Building all workspaces/packages...');
 
   // Step 1: Generate commit info
-  execSync('npm run generate', { stdio: 'inherit', cwd: root });
+  try {
+    execSync('npm run generate', { stdio: 'inherit', cwd: root });
+  } catch (_err) {
+    console.error('Failed to generate commit info.');
+    process.exit(1);
+  }
 
   // Step 2: Build core first as others depend on it
   console.log('Building @google/gemini-cli-core...');
-  execSync('npm run build --workspace @google/gemini-cli-core', {
-    stdio: 'inherit',
-    cwd: root,
-  });
+  try {
+    execSync('npm run build --workspace @google/gemini-cli-core', {
+      stdio: 'inherit',
+      cwd: root,
+    });
+  } catch (_err) {
+    console.error('Failed to build @google/gemini-cli-core.');
+    process.exit(1);
+  }
 
   // Step 3: Build all other workspaces in parallel
   const packagesDir = join(root, 'packages');
@@ -60,12 +70,21 @@ async function build() {
     )
       .then(() => console.log(`Successfully built ${pkg}`))
       .catch((err) => {
-        console.error(`Failed to build ${pkg}:`, err.stderr || err.message);
-        throw err;
+        console.error(`\nERROR: Failed to build package: ${pkg}`);
+        console.error(
+          `Command: npm run build --workspace @google/gemini-cli-${pkg}`,
+        );
+        console.error('Error Details:', err.stderr || err.message);
+        throw new Error(`Build failed for ${pkg}`);
       });
   });
 
-  await Promise.all(buildTasks);
+  try {
+    await Promise.all(buildTasks);
+  } catch (_err) {
+    console.error('\nBuild process aborted due to package build failure.');
+    process.exit(1);
+  }
 
   // also build container image if sandboxing is enabled
   try {
@@ -82,8 +101,10 @@ async function build() {
         cwd: root,
       });
     }
-  } catch {
-    // ignore
+  } catch (_err) {
+    console.warn(
+      'Sandbox/Container build failed, but continuing as this is optional.',
+    );
   }
 }
 
