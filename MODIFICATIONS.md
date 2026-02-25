@@ -48,10 +48,19 @@ distinguishing it from the
       - **`run_powershell_command`**: Added a dedicated tool for executing
         PowerShell commands, allowing the agent to leverage advanced Windows
         scripting features explicitly.
-    - **Robust Build Process**: Reworked `scripts/build.js` to build
-      `@google/gemini-cli-core` first, followed by other packages in parallel.
-      Added explicit error handling to ensure the build process halts
-      immediately if any package fails, with detailed error reporting.
+    - **Robust & Optimized Build Process**:
+      - Reworked `scripts/build.js` to run `tsc --build` once at the root level
+        using TypeScript project references.
+      - Finalizes packages (asset copying, core-specific docs, etc.) in parallel
+        using a new `--skip-tsc` flag for `scripts/build_package.js`.
+      - This dramatically reduces redundant compilation and speeds up the
+        overall build.
+      - Added explicit error handling to ensure the build process halts
+        immediately if any package fails, with detailed error reporting.
+    - **Automatic Commit Messages**:
+      - Updated project instructions (`GEMINI.md`) to mandate that the AI agent
+        generate high-quality, Conventional Commits-compliant commit messages
+        automatically without prompting the user.
     - **Added `get_time` Tool**: Added a new built-in tool that returns the
       local system's current time and date in multiple formats (Local, ISO,
       Full).

@@ -48,7 +48,7 @@ export const AboutBox: React.FC<AboutBoxProps> = ({
     >
       <Box marginBottom={1}>
         <Text bold color={theme.text.accent}>
-          About Gemini CLI
+          About Gemini CLI ({"Craig's"} Mod)
         </Text>
       </Box>
       <Box flexDirection="row">
@@ -59,6 +59,16 @@ export const AboutBox: React.FC<AboutBoxProps> = ({
         </Box>
         <Box>
           <Text color={theme.text.primary}>{cliVersion}</Text>
+        </Box>
+      </Box>
+      <Box flexDirection="row">
+        <Box width="35%">
+          <Text bold color={theme.text.link}>
+            {"Craig's"} Mod
+          </Text>
+        </Box>
+        <Box>
+          <Text color={theme.text.primary}>Craig Ward</Text>
         </Box>
       </Box>
       {GIT_COMMIT_INFO && !['N/A'].includes(GIT_COMMIT_INFO) && (

@@ -75,25 +75,22 @@ async function build() {
     process.exit(1);
   }
 
-  // Step 2: Build core first as others depend on it
-  console.log('Building @google/gemini-cli-core...');
+  // Step 2: Build all packages using project references at root
+  console.log('Building all packages using tsc --build...');
   try {
-    execSync('npm run build --workspace @google/gemini-cli-core', {
-      stdio: 'inherit',
-      cwd: root,
-    });
+    execSync('npm run build:packages', { stdio: 'inherit', cwd: root });
   } catch (_err) {
-    console.error('Failed to build @google/gemini-cli-core.');
+    console.error('Failed to build packages.');
     process.exit(1);
   }
 
-  // Step 3: Build all other workspaces in parallel
+  // Step 3: Run package-specific build tasks (assets, etc.) in parallel
   const packagesDir = join(root, 'packages');
   const packages = readdirSync(packagesDir, { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory() && dirent.name !== 'core')
+    .filter((dirent) => dirent.isDirectory())
     .map((dirent) => dirent.name);
 
-  console.log(`Building other packages in parallel: ${packages.join(', ')}`);
+  console.log(`Finalizing packages in parallel: ${packages.join(', ')}`);
 
   const buildTasks = packages.map((pkg) => {
     let workspaceName = `@google/gemini-cli-${pkg}`;
@@ -103,16 +100,21 @@ async function build() {
       workspaceName = 'gemini-cli-vscode-ide-companion';
     }
 
-    return execAsync(
-      `npm run build --workspace ${workspaceName} --if-present`,
-      {
-        cwd: root,
-      },
-    )
-      .then(() => console.log(`Successfully built ${pkg}`))
+    const isVscode = pkg === 'vscode-ide-companion';
+    const isDevtools = pkg === 'devtools';
+
+    let command;
+    if (isVscode || isDevtools) {
+      command = `npm run build --workspace ${workspaceName}`;
+    } else {
+      command = `npm run build --workspace ${workspaceName} --if-present -- --skip-tsc`;
+    }
+
+    return execAsync(command, { cwd: root })
+      .then(() => console.log(`Successfully finalized ${pkg}`))
       .catch((err) => {
-        console.error(`\nERROR: Failed to build package: ${pkg}`);
-        console.error(`Command: npm run build --workspace ${workspaceName}`);
+        console.error(`\nERROR: Failed to finalize package: ${pkg}`);
+        console.error(`Command: ${command}`);
         console.error('Error Details:', err.stderr || err.message);
         throw new Error(`Build failed for ${pkg}`);
       });

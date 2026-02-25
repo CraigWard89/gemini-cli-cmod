@@ -7,10 +7,13 @@
 
 1.  **NO AUTOMATIC BUILDS/COMMITS**: Do **NOT** build or commit/push changes
     unless explicitly asked by the user.
-2.  **`gemini-cli` SIBLING IS READ-ONLY**: The adjacent `gemini-cli` directory
+2.  **AUTOMATIC COMMIT MESSAGES**: When asked to commit, you MUST generate a
+    high-quality, descriptive commit message following the Conventional Commits
+    standard. Do **NOT** ask the user for a commit message.
+3.  **`gemini-cli` SIBLING IS READ-ONLY**: The adjacent `gemini-cli` directory
     is for **REFERENCE ONLY**. Never modify it. If accidental changes or commits
     occur, reset it to origin immediately.
-3.  **FOUNDATIONAL CONTEXT**: Always refer to the root
+4.  **FOUNDATIONAL CONTEXT**: Always refer to the root
     `E:\Super Agent\GEMINI.md` for workspace-wide mandates and project-specific
     architectures.
 

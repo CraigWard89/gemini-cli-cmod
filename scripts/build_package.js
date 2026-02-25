@@ -27,9 +27,12 @@ if (!process.cwd().includes('packages')) {
 }
 
 const packageName = basename(process.cwd());
+const skipTsc = process.argv.includes('--skip-tsc');
 
 // build typescript files
-execSync('tsc --build', { stdio: 'inherit' });
+if (!skipTsc) {
+  execSync('tsc --build', { stdio: 'inherit' });
+}
 
 // copy .{md,json} files
 execSync('node ../../scripts/copy_files.js', { stdio: 'inherit' });
