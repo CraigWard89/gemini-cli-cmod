@@ -16,6 +16,8 @@ distinguishing it from the
   `ROADMAP.md`, `CONTRIBUTING.md`, and `docs/index.md` to identify the project
   as **Craig's Mod** and include notes regarding its status as a modified
   version.
+- **UI Components Map**: Created `UI_COMPONENTS.md` as a comprehensive index of
+  all UI components to simplify maintenance and modifications.
 - **Package Context**: Updated various `GEMINI.md` files within packages (e.g.,
   `packages/cli`, `packages/devtools`, `packages/a2a-server`) to reflect the
   mod's identity.
