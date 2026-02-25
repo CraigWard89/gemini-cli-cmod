@@ -153,14 +153,14 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "prettier --write",
-      "eslint --fix --max-warnings 0 --no-warn-ignored"
+      "eslint --fix --cache --max-warnings 0 --no-warn-ignored",
+      "prettier --write --cache"
     ],
     "eslint.config.js": [
-      "prettier --write"
+      "prettier --write --cache"
     ],
     "*.{json,md}": [
-      "prettier --write"
+      "prettier --write --cache"
     ]
   }
 }

@@ -57,7 +57,13 @@ distinguishing it from the
         overall build.
       - Added explicit error handling to ensure the build process halts
         immediately if any package fails, with detailed error reporting.
-    - **Automatic Commit Messages**:
+      - **Optimized Pre-commit Hook**:
+      - Reworked `scripts/pre-commit.js` to exit early if no files are staged,
+        avoiding heavy module loading.
+      - Enabled caching for `eslint` and `prettier` within `lint-staged` to
+        speed up incremental commits.
+      - Optimized task ordering to ensure consistent formatting.
+      - **Automatic Commit Messages**:
       - Updated project instructions (`GEMINI.md`) to mandate that the AI agent
         generate high-quality, Conventional Commits-compliant commit messages
         automatically without prompting the user.
