@@ -28,7 +28,7 @@ import { canUseRipgrep, RipGrepTool } from '../tools/ripGrep.js';
 import { GlobTool } from '../tools/glob.js';
 import { ActivateSkillTool } from '../tools/activate-skill.js';
 import { EditTool } from '../tools/edit.js';
-import { ShellTool } from '../tools/shell.js';
+import { ShellTool, PowerShellTool } from '../tools/shell.js';
 import { WriteFileTool } from '../tools/write-file.js';
 import { WebFetchTool } from '../tools/web-fetch.js';
 import { MemoryTool, setGeminiMdFilename } from '../tools/memoryTool.js';
@@ -2712,6 +2712,9 @@ export class Config {
     );
     maybeRegister(ShellTool, () =>
       registry.registerTool(new ShellTool(this, this.messageBus)),
+    );
+    maybeRegister(PowerShellTool, () =>
+      registry.registerTool(new PowerShellTool(this, this.messageBus)),
     );
     maybeRegister(MemoryTool, () =>
       registry.registerTool(new MemoryTool(this.messageBus)),

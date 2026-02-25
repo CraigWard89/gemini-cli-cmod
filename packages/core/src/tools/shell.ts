@@ -40,6 +40,8 @@ import {
   stripShellWrapper,
   parseCommandDetails,
   hasRedirection,
+  type ShellConfiguration,
+  POWERSHELL_CONFIGURATION,
 } from '../utils/shell-utils.js';
 import { SHELL_TOOL_NAME } from './tool-names.js';
 import type { MessageBus } from '../confirmation-bus/message-bus.js';
@@ -62,6 +64,8 @@ export class ShellToolInvocation extends BaseToolInvocation<
   ShellToolParams,
   ToolResult
 > {
+  protected customShellConfig?: ShellConfiguration;
+
   constructor(
     private readonly config: Config,
     params: ShellToolParams,
@@ -73,7 +77,11 @@ export class ShellToolInvocation extends BaseToolInvocation<
   }
 
   getDescription(): string {
-    let description = `${this.params.command}`;
+    let shellName = '';
+    if (this.customShellConfig) {
+      shellName = ` [${this.customShellConfig.shell}]`;
+    }
+    let description = `${this.params.command}${shellName}`;
     // append optional [in directory]
     // note description is needed even if validation fails due to absolute path
     if (this.params.dir_path) {
@@ -136,7 +144,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
     // so we must provide confirmation details.
     const confirmationDetails: ToolExecuteConfirmationDetails = {
       type: 'exec',
-      title: 'Confirm Shell Command',
+      title: `Confirm Shell Command (${this.customShellConfig?.shell || 'Default'})`,
       command: this.params.command,
       rootCommand: rootCommandDisplay,
       rootCommands,
@@ -279,6 +287,7 @@ export class ShellToolInvocation extends BaseToolInvocation<
               shellExecutionConfig?.sanitizationConfig ??
               this.config.sanitizationConfig,
           },
+          this.customShellConfig,
         );
 
       if (pid) {
@@ -520,5 +529,47 @@ export class ShellTool extends BaseDeclarativeTool<
       this.config.getEnableShellOutputEfficiency(),
     );
     return resolveToolDeclaration(definition, modelId);
+  }
+}
+
+/**
+ * Craig's Mod: Explicit PowerShell tool for advanced Windows capabilities.
+ */
+class PowerShellToolInvocation extends ShellToolInvocation {
+  constructor(
+    config: Config,
+    params: ShellToolParams,
+    messageBus: MessageBus,
+    _toolName?: string,
+    _toolDisplayName?: string,
+  ) {
+    super(config, params, messageBus, _toolName, _toolDisplayName);
+    this.customShellConfig = POWERSHELL_CONFIGURATION;
+  }
+}
+
+export class PowerShellTool extends ShellTool {
+  static readonly PowerShellName = 'run_powershell_command';
+
+  constructor(config: Config, messageBus: MessageBus) {
+    super(config, messageBus);
+    this.name = PowerShellTool.PowerShellName;
+    this.displayName = 'PowerShell';
+    this.description = 'Executes a command within a PowerShell session.';
+  }
+
+  protected override createInvocation(
+    params: ShellToolParams,
+    messageBus: MessageBus,
+    _toolName?: string,
+    _toolDisplayName?: string,
+  ): ToolInvocation<ShellToolParams, ToolResult> {
+    return new PowerShellToolInvocation(
+      this.config,
+      params,
+      messageBus,
+      _toolName,
+      _toolDisplayName,
+    );
   }
 }

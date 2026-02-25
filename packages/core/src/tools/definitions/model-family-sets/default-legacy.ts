@@ -32,6 +32,7 @@ import {
   getShellDeclaration,
   getExitPlanModeDeclaration,
   getActivateSkillDeclaration,
+  getPowerShellDeclaration,
 } from '../dynamic-declaration-helpers.js';
 
 export const DEFAULT_LEGACY_SET: CoreToolSet = {
@@ -320,6 +321,9 @@ export const DEFAULT_LEGACY_SET: CoreToolSet = {
 
   run_shell_command: (enableInteractiveShell, enableEfficiency) =>
     getShellDeclaration(enableInteractiveShell, enableEfficiency),
+
+  run_powershell_command: (enableInteractiveShell, enableEfficiency) =>
+    getPowerShellDeclaration(enableInteractiveShell, enableEfficiency),
 
   replace: {
     name: EDIT_TOOL_NAME,

@@ -17,7 +17,8 @@ import {
   getShellDeclaration,
   getExitPlanModeDeclaration,
   getActivateSkillDeclaration,
-} from './dynamic-declaration-helpers.js';
+
+  getPowerShellDeclaration} from './dynamic-declaration-helpers.js';
 
 // Re-export names for compatibility
 export {
@@ -188,10 +189,6 @@ export const DIFF_DEFINITION: ToolDefinition = {
 // DYNAMIC TOOL DEFINITIONS (LEGACY EXPORTS)
 // ============================================================================
 
-export {
-  getShellToolDescription,
-  getCommandDescription,
-} from './dynamic-declaration-helpers.js';
 
 export function getShellDefinition(
   enableInteractiveShell: boolean,
@@ -201,6 +198,20 @@ export function getShellDefinition(
     base: getShellDeclaration(enableInteractiveShell, enableEfficiency),
     overrides: (modelId) =>
       getToolSet(modelId).run_shell_command(
+        enableInteractiveShell,
+        enableEfficiency,
+      ),
+  };
+}
+
+export function getPowerShellDefinition(
+  enableInteractiveShell: boolean,
+  enableEfficiency: boolean,
+): ToolDefinition {
+  return {
+    base: getPowerShellDeclaration(enableInteractiveShell, enableEfficiency),
+    overrides: (modelId) =>
+      getToolSet(modelId).run_powershell_command(
         enableInteractiveShell,
         enableEfficiency,
       ),

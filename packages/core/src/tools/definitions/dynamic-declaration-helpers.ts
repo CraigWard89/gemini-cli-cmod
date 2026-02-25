@@ -47,9 +47,9 @@ export function getShellToolDescription(
 
   if (os.platform() === 'win32') {
     const backgroundInstructions = enableInteractiveShell
-      ? 'To run a command in the background, set the `is_background` parameter to true. Do NOT use PowerShell background constructs.'
-      : 'Command can start background processes using PowerShell constructs such as `Start-Process -NoNewWindow` or `Start-Job`.';
-    return `This tool executes a given shell command as \`powershell.exe -NoProfile -Command <command>\`. ${backgroundInstructions}${efficiencyGuidelines}${returnedInfo}`;
+      ? 'To run a command in the background, set the `is_background` parameter to true. Do NOT use shell background constructs.'
+      : 'Command can start background processes using shell constructs.';
+    return `This tool executes a given shell command as \`cmd.exe /d /s /c <command>\`. ${backgroundInstructions}${efficiencyGuidelines}${returnedInfo}`;
   } else {
     const backgroundInstructions = enableInteractiveShell
       ? 'To run a command in the background, set the `is_background` parameter to true. Do NOT use `&` to background commands.'
@@ -63,9 +63,64 @@ export function getShellToolDescription(
  */
 export function getCommandDescription(): string {
   if (os.platform() === 'win32') {
-    return 'Exact command to execute as `powershell.exe -NoProfile -Command <command>`';
+    return 'Exact command to execute as `cmd.exe /d /s /c <command>`';
   }
   return 'Exact bash command to execute as `bash -c <command>`';
+}
+
+/**
+ * Craig's Mod: Returns the FunctionDeclaration for the PowerShell tool.
+ */
+export function getPowerShellDeclaration(
+  enableInteractiveShell: boolean,
+  enableEfficiency: boolean,
+): FunctionDeclaration {
+  const efficiencyGuidelines = enableEfficiency
+    ? `
+
+      Efficiency Guidelines:
+      - Quiet Flags: Always prefer silent or quiet flags (e.g., \`npm install --silent\`, \`git --no-pager\`) to reduce output volume while still capturing necessary information.
+      - Pagination: Always disable terminal pagination to ensure commands terminate.`
+    : '';
+
+  const backgroundInstructions = enableInteractiveShell
+    ? 'To run a command in the background, set the `is_background` parameter to true. Do NOT use PowerShell background constructs.'
+    : 'Command can start background processes using PowerShell constructs such as `Start-Process -NoNewWindow` or `Start-Job`.';
+
+  const returnedInfo = `
+
+      The following information is returned:
+
+      Output: Combined stdout/stderr.
+      Exit Code: Only included if non-zero.
+      Error: Only included if a process-level error occurred.`;
+
+  return {
+    name: 'run_powershell_command',
+    description: `This tool executes a given PowerShell command as \`powershell.exe -NoProfile -Command <command>\`. ${backgroundInstructions}${efficiencyGuidelines}${returnedInfo}`,
+    parametersJsonSchema: {
+      type: 'object',
+      properties: {
+        command: {
+          type: 'string',
+          description: 'Exact PowerShell command to execute.',
+        },
+        description: {
+          type: 'string',
+          description: 'Brief description of the command.',
+        },
+        dir_path: {
+          type: 'string',
+          description: 'Optional: Directory to run the command in.',
+        },
+        is_background: {
+          type: 'boolean',
+          description: 'Whether to run in the background.',
+        },
+      },
+      required: ['command'],
+    },
+  };
 }
 
 /**

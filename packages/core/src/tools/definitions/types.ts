@@ -38,6 +38,10 @@ export interface CoreToolSet {
     enableInteractiveShell: boolean,
     enableEfficiency: boolean,
   ) => FunctionDeclaration;
+  run_powershell_command: (
+    enableInteractiveShell: boolean,
+    enableEfficiency: boolean,
+  ) => FunctionDeclaration;
   replace: FunctionDeclaration;
   google_web_search: FunctionDeclaration;
   web_fetch: FunctionDeclaration;

@@ -228,6 +228,7 @@ export class ShellExecutionService {
     abortSignal: AbortSignal,
     shouldUseNodePty: boolean,
     shellExecutionConfig: ShellExecutionConfig,
+    customShellConfig?: ShellConfiguration,
   ): Promise<ShellExecutionHandle> {
     if (shouldUseNodePty) {
       const ptyInfo = await getPty();
@@ -240,6 +241,7 @@ export class ShellExecutionService {
             abortSignal,
             shellExecutionConfig,
             ptyInfo,
+            customShellConfig,
           );
         } catch (_e) {
           // Fallback to child_process
@@ -253,6 +255,7 @@ export class ShellExecutionService {
       onOutputEvent,
       abortSignal,
       shellExecutionConfig.sanitizationConfig,
+      customShellConfig,
     );
   }
 
@@ -299,11 +302,15 @@ export class ShellExecutionService {
     onOutputEvent: (event: ShellOutputEvent) => void,
     abortSignal: AbortSignal,
     sanitizationConfig: EnvironmentSanitizationConfig,
+    customShellConfig?: ShellConfiguration,
   ): ShellExecutionHandle {
     try {
       const isWindows = os.platform() === 'win32';
-      const { executable, argsPrefix, shell } = getShellConfiguration();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const { executable, argsPrefix, shell } =
+        customShellConfig ?? getShellConfiguration();
       const guardedCommand = ensurePromptvarsDisabled(commandToExecute, shell);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const spawnArgs = [...argsPrefix, guardedCommand];
 
       const child = cpSpawn(executable, spawnArgs, {
@@ -548,6 +555,7 @@ export class ShellExecutionService {
     abortSignal: AbortSignal,
     shellExecutionConfig: ShellExecutionConfig,
     ptyInfo: PtyImplementation,
+    customShellConfig?: ShellConfiguration,
   ): Promise<ShellExecutionHandle> {
     if (!ptyInfo) {
       // This should not happen, but as a safeguard...
@@ -556,7 +564,9 @@ export class ShellExecutionService {
     try {
       const cols = shellExecutionConfig.terminalWidth ?? 80;
       const rows = shellExecutionConfig.terminalHeight ?? 30;
-      const { executable, argsPrefix, shell } = getShellConfiguration();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const { executable, argsPrefix, shell } =
+        customShellConfig ?? getShellConfiguration();
 
       const resolvedExecutable = await resolveExecutable(executable);
       if (!resolvedExecutable) {
@@ -566,6 +576,7 @@ export class ShellExecutionService {
       }
 
       const guardedCommand = ensurePromptvarsDisabled(commandToExecute, shell);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const args = [...argsPrefix, guardedCommand];
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

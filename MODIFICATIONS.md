@@ -35,12 +35,19 @@ distinguishing it from the
     `ASK_USER`, forcing a confirmation prompt even for "read-only" tools like
     `read_file`.
     - **Bulk File Operations & Parallelism**:
-    - **`read_file`**: Enhanced to support an optional `files` array for reading
-      multiple files in parallel.
-    - **`write_file`**: Enhanced to support an optional `files` array for
-      writing multiple files in parallel.
-    - These improvements reduce the number of tool calls (turns) needed for
-      multi-file operations, conserving context and tokens.
+      - **`read_file`**: Enhanced to support an optional `files` array for
+        reading multiple files in parallel.
+      - **`write_file`**: Enhanced to support an optional `files` array for
+        writing multiple files in parallel.
+      - These improvements reduce the number of tool calls (turns) needed for
+        multi-file operations, conserving context and tokens.
+    - **Improved Terminal Capabilities**:
+      - **`run_shell_command`**: Reworked on Windows to use `cmd.exe` by default
+        instead of PowerShell. This provides a more traditional command-line
+        environment.
+      - **`run_powershell_command`**: Added a dedicated tool for executing
+        PowerShell commands, allowing the agent to leverage advanced Windows
+        scripting features explicitly.
     - **Added `get_time` Tool**: Added a new built-in tool that returns the
       local system's current time and date in multiple formats (Local, ISO,
       Full).

@@ -545,32 +545,26 @@ export function parseCommandDetails(
  */
 export function getShellConfiguration(): ShellConfiguration {
   if (isWindows()) {
-    const comSpec = process.env['ComSpec'];
-    if (comSpec) {
-      const executable = comSpec.toLowerCase();
-      if (
-        executable.endsWith('powershell.exe') ||
-        executable.endsWith('pwsh.exe')
-      ) {
-        return {
-          executable: comSpec,
-          argsPrefix: ['-NoProfile', '-Command'],
-          shell: 'powershell',
-        };
-      }
-    }
-
-    // Default to PowerShell for all other Windows configurations.
+    // Craig's Mod: Prioritize cmd.exe for run_shell_command on Windows
     return {
-      executable: 'powershell.exe',
-      argsPrefix: ['-NoProfile', '-Command'],
-      shell: 'powershell',
+      executable: 'cmd.exe',
+      argsPrefix: ['/d', '/s', '/c'],
+      shell: 'cmd',
     };
   }
 
   // Unix-like systems (Linux, macOS)
   return { executable: 'bash', argsPrefix: ['-c'], shell: 'bash' };
 }
+
+/**
+ * Craig's Mod: Explicit PowerShell configuration for run_powershell_command.
+ */
+export const POWERSHELL_CONFIGURATION: ShellConfiguration = {
+  executable: 'powershell.exe',
+  argsPrefix: ['-NoProfile', '-NonInteractive', '-Command'],
+  shell: 'powershell',
+};
 
 /**
  * Export the platform detection constant for use in process management (e.g., killing processes).
