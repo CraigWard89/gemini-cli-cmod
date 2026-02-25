@@ -10,6 +10,9 @@
 2.  **`gemini-cli` SIBLING IS READ-ONLY**: The adjacent `gemini-cli` directory
     is for **REFERENCE ONLY**. Never modify it. If accidental changes or commits
     occur, reset it to origin immediately.
+3.  **FOUNDATIONAL CONTEXT**: Always refer to the root
+    `E:\Super Agent\GEMINI.md` for workspace-wide mandates and project-specific
+    architectures.
 
 ## Project Overview
 
