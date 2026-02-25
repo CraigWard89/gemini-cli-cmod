@@ -1,16 +1,22 @@
-# How to contribute
+# How to contribute to Gemini CLI (Craig's Mod)
+
+> **Note:** This is the contribution guide for **Craig's Mod**, a modified
+> version of the
+> [official Gemini CLI](https://github.com/google-gemini/gemini-cli). If you are
+> looking to contribute to the official project, please visit the
+> [official repository](https://github.com/google-gemini/gemini-cli).
 
 We would love to accept your patches and contributions to this project. This
 document includes:
 
 - **[Before you begin](#before-you-begin):** Essential steps to take before
-  becoming a Gemini CLI contributor.
+  becoming a Gemini CLI (Craig's Mod) contributor.
 - **[Code contribution process](#code-contribution-process):** How to contribute
-  code to Gemini CLI.
+  code to Gemini CLI (Craig's Mod).
 - **[Development setup and workflow](#development-setup-and-workflow):** How to
   set up your development environment and workflow.
 - **[Documentation contribution process](#documentation-contribution-process):**
-  How to contribute documentation to Gemini CLI.
+  How to contribute documentation to Gemini CLI (Craig's Mod).
 
 We're looking forward to seeing your contributions!
 

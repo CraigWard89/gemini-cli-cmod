@@ -1,4 +1,8 @@
-# Gemini CLI
+# Gemini CLI (Craig's Mod)
+
+> **Note:** This is a modified version of the
+> [official Gemini CLI](https://github.com/google-gemini/gemini-cli), referred
+> to as **Craig's Mod**.
 
 [![Gemini CLI CI](https://github.com/google-gemini/gemini-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/google-gemini/gemini-cli/actions/workflows/ci.yml)
 [![Gemini CLI E2E (Chained)](https://github.com/google-gemini/gemini-cli/actions/workflows/chained_e2e.yml/badge.svg)](https://github.com/google-gemini/gemini-cli/actions/workflows/chained_e2e.yml)

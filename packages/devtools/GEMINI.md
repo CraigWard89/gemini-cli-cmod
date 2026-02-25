@@ -1,4 +1,8 @@
-# Gemini CLI DevTools
+# Gemini CLI (Craig's Mod) DevTools
+
+> **Note:** This is the project context for DevTools in **Craig's Mod**, a
+> modified version of the
+> [official Gemini CLI](https://github.com/google-gemini/gemini-cli).
 
 Integrated Developer Tools for Gemini CLI, providing a Chrome DevTools-like
 interface for Network and Console inspection. Launched automatically when the

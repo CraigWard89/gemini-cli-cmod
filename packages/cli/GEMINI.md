@@ -1,3 +1,9 @@
+# Gemini CLI (Craig's Mod) CLI UI Context
+
+> **Note:** This is the UI-specific context for **Craig's Mod**, a modified
+> version of the
+> [official Gemini CLI](https://github.com/google-gemini/gemini-cli).
+
 ## React & Ink (CLI UI)
 
 - **Side Effects**: Use reducers for complex state transitions; avoid `setState`

@@ -1,4 +1,7 @@
-# Gemini CLI documentation
+# Gemini CLI (Craig's Mod) documentation
+
+> **Note:** This is the documentation for **Craig's Mod**, a modified version of
+> the [official Gemini CLI](https://github.com/google-gemini/gemini-cli).
 
 Gemini CLI brings the power of Gemini models directly into your terminal. Use it
 to understand code, automate tasks, and build workflows with your local project

@@ -1,4 +1,7 @@
-# Gemini CLI Project Context
+# Gemini CLI (Craig's Mod) Project Context
+
+> **Note:** This is the project context for **Craig's Mod**, a modified version
+> of the [official Gemini CLI](https://github.com/google-gemini/gemini-cli).
 
 Gemini CLI is an open-source AI agent that brings the power of Gemini directly
 into the terminal. It is designed to be a terminal-first, extensible, and

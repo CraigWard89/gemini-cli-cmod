@@ -1,4 +1,7 @@
-# Gemini CLI Roadmap
+# Gemini CLI (Craig's Mod) Roadmap
+
+> **Note:** This is the roadmap for **Craig's Mod**, a modified version of the
+> [official Gemini CLI](https://github.com/google-gemini/gemini-cli).
 
 The
 [Official Gemini CLI Roadmap](https://github.com/orgs/google-gemini/projects/11/)

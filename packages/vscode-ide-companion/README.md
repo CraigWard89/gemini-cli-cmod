@@ -1,8 +1,12 @@
-# Gemini CLI Companion
+# Gemini CLI (Craig's Mod) Companion
+
+> **Note:** This is the VS Code companion for **Craig's Mod**, a modified
+> version of the
+> [official Gemini CLI](https://github.com/google-gemini/gemini-cli).
 
 The Gemini CLI Companion extension pairs with
-[Gemini CLI](https://github.com/google-gemini/gemini-cli). This extension is
-compatible with both VS Code and VS Code forks.
+[Gemini CLI (Craig's Mod)](https://github.com/google-gemini/gemini-cli). This
+extension is compatible with both VS Code and VS Code forks.
 
 # Features
 
