@@ -8,9 +8,9 @@ distinguishing it from the
 
 - **ASCII Art Update**: Modified `packages/cli/src/ui/components/AsciiArt.ts` to
   display "GEMINI CMOD" instead of the standard "GEMINI" logo.
-- **Header Watermark**: Added a `(cmod)` watermark to the `UserIdentity`
-  component, displayed immediately after the user's subscription plan (tier) in
-  the header.
+- **Header Watermark**: Added a "Thank you for using Craig's Mod!" watermark to
+  the `UserIdentity` component, displayed on its own line immediately after the
+  user's subscription plan (tier) in the header.
 - **Instructional Documentation**: Updated `README.md`, `GEMINI.md`,
   `ROADMAP.md`, `CONTRIBUTING.md`, and `docs/index.md` to identify the project
   as **Craig's Mod** and include notes regarding its status as a modified
