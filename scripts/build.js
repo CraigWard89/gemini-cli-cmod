@@ -41,6 +41,25 @@ if (!existsSync(join(root, 'node_modules'))) {
 async function build() {
   console.log('Building all workspaces/packages...');
 
+  // Step 0: Update version to latest dev timestamp
+  console.log('Updating version...');
+  try {
+    // Try python then python3
+    try {
+      execSync('python scripts/set-version.py dev', {
+        stdio: 'inherit',
+        cwd: root,
+      });
+    } catch {
+      execSync('python3 scripts/set-version.py dev', {
+        stdio: 'inherit',
+        cwd: root,
+      });
+    }
+  } catch (_err) {
+    console.warn('Failed to update version, continuing with current version.');
+  }
+
   // Step 1: Generate commit info
   try {
     execSync('npm run generate', { stdio: 'inherit', cwd: root });
