@@ -21,10 +21,11 @@ vi.mock('./ContextSummaryDisplay.js', () => ({
   ContextSummaryDisplay: (props: {
     skillCount: number;
     backgroundProcessCount: number;
+    chatHistoryCount: number;
   }) => (
     <Text>
       Mock Context Summary Display (Skills: {props.skillCount}, Shells:{' '}
-      {props.backgroundProcessCount})
+      {props.backgroundProcessCount}, History: {props.chatHistoryCount})
     </Text>
   ),
 }));

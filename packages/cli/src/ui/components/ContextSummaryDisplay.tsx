@@ -14,6 +14,7 @@ import { isNarrowWidth } from '../utils/isNarrowWidth.js';
 interface ContextSummaryDisplayProps {
   geminiMdFileCount: number;
   memoryCount: number;
+  chatHistoryCount: number;
   contextFileNames: string[];
   mcpServers?: Record<string, MCPServerConfig>;
   blockedMcpServers?: Array<{ name: string; extensionName: string }>;
@@ -25,6 +26,7 @@ interface ContextSummaryDisplayProps {
 export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
   geminiMdFileCount,
   memoryCount,
+  chatHistoryCount,
   contextFileNames,
   mcpServers,
   blockedMcpServers,
@@ -41,6 +43,7 @@ export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
   if (
     geminiMdFileCount === 0 &&
     memoryCount === 0 &&
+    chatHistoryCount === 0 &&
     mcpServerCount === 0 &&
     blockedMcpServerCount === 0 &&
     openFileCount === 0 &&
@@ -75,6 +78,13 @@ export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
       return '';
     }
     return `${memoryCount} memor${memoryCount > 1 ? 'ies' : 'y'}`;
+  })();
+
+  const chatHistoryText = (() => {
+    if (chatHistoryCount === 0) {
+      return '';
+    }
+    return `${chatHistoryCount} message${chatHistoryCount > 1 ? 's' : ''}`;
   })();
 
   const mcpText = (() => {
@@ -119,6 +129,7 @@ export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
     openFilesText,
     geminiMdText,
     memoryText,
+    chatHistoryText,
     mcpText,
     skillText,
     backgroundText,

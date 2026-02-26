@@ -41,6 +41,7 @@ export const StatusDisplay: React.FC<StatusDisplayProps> = ({
         ideContext={uiState.ideContextState}
         geminiMdFileCount={uiState.geminiMdFileCount}
         memoryCount={uiState.memoryCount}
+        chatHistoryCount={uiState.history.length}
         contextFileNames={uiState.contextFileNames}
         mcpServers={config.getMcpClientManager()?.getMcpServers() ?? {}}
         blockedMcpServers={
