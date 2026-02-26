@@ -31,7 +31,7 @@ import { EditTool } from '../tools/edit.js';
 import { ShellTool, PowerShellTool } from '../tools/shell.js';
 import { WriteFileTool } from '../tools/write-file.js';
 import { WebFetchTool } from '../tools/web-fetch.js';
-import { MemoryTool, setGeminiMdFilename } from '../tools/memoryTool.js';
+import { MemoriesTool, setGeminiMdFilename } from '../tools/memoryTool.js';
 import { WebSearchTool } from '../tools/web-search.js';
 import { AskUserTool } from '../tools/ask-user.js';
 import { GetTimeTool } from '../tools/get-time.js';
@@ -2716,8 +2716,8 @@ export class Config {
     maybeRegister(PowerShellTool, () =>
       registry.registerTool(new PowerShellTool(this, this.messageBus)),
     );
-    maybeRegister(MemoryTool, () =>
-      registry.registerTool(new MemoryTool(this.messageBus)),
+    maybeRegister(MemoriesTool, () =>
+      registry.registerTool(new MemoriesTool(this.messageBus)),
     );
     maybeRegister(WebSearchTool, () =>
       registry.registerTool(new WebSearchTool(this, this.messageBus)),

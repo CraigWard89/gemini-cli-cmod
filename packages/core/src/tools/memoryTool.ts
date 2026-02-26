@@ -27,11 +27,11 @@ import type { MessageBus } from '../confirmation-bus/message-bus.js';
 import { MEMORY_DEFINITION } from './definitions/coreTools.js';
 import { resolveToolDeclaration } from './definitions/resolver.js';
 
-export const DEFAULT_CONTEXT_FILENAME = 'GEMINI.md';
-export const MEMORY_SECTION_HEADER = '## Gemini Added Memories';
+export const DEFAULT_CONTEXT_FILENAME = 'MEMORIES.md';
+export const MEMORY_SECTION_HEADER = '# Memories';
 
-// This variable will hold the currently configured filename for GEMINI.md context files.
-// It defaults to DEFAULT_CONTEXT_FILENAME but can be overridden by setGeminiMdFilename.
+// This variable will hold the currently configured filename for memory context files.
+// It defaults to DEFAULT_CONTEXT_FILENAME but can be overridden.
 let currentGeminiMdFilename: string | string[] = DEFAULT_CONTEXT_FILENAME;
 
 export function setGeminiMdFilename(newFilename: string | string[]): void {
@@ -52,32 +52,25 @@ export function getCurrentGeminiMdFilename(): string {
 }
 
 export function getAllGeminiMdFilenames(): string[] {
+  const filenames = new Set<string>(['GEMINI.md', 'MEMORIES.md']);
   if (Array.isArray(currentGeminiMdFilename)) {
-    return currentGeminiMdFilename;
+    currentGeminiMdFilename.forEach((f) => filenames.add(f));
+  } else {
+    filenames.add(currentGeminiMdFilename);
   }
-  return [currentGeminiMdFilename];
+  return Array.from(filenames);
 }
 
-interface SaveMemoryParams {
-  fact: string;
+interface MemoriesParams {
+  action: 'save' | 'delete' | 'fetch';
+  fact?: string;
+  id?: string;
   modified_by_user?: boolean;
   modified_content?: string;
 }
 
 export function getGlobalMemoryFilePath(): string {
   return path.join(Storage.getGlobalGeminiDir(), getCurrentGeminiMdFilename());
-}
-
-/**
- * Ensures proper newline separation before appending content.
- */
-function ensureNewlineSeparation(currentContent: string): string {
-  if (currentContent.length === 0) return '';
-  if (currentContent.endsWith('\n\n') || currentContent.endsWith('\r\n\r\n'))
-    return '';
-  if (currentContent.endsWith('\n') || currentContent.endsWith('\r\n'))
-    return '\n';
-  return '\n\n';
 }
 
 /**
@@ -95,59 +88,45 @@ async function readMemoryFileContent(): Promise<string> {
 }
 
 /**
- * Computes the new content that would result from adding a memory entry
+ * Parses the memories from the file content
  */
-function computeNewContent(currentContent: string, fact: string): string {
-  // Sanitize to prevent markdown injection by collapsing to a single line.
-  let processedText = fact.replace(/[\r\n]/g, ' ').trim();
-  processedText = processedText.replace(/^(-+\s*)+/, '').trim();
-  const newMemoryItem = `- ${processedText}`;
+function parseMemories(content: string): Array<{ id: number; fact: string }> {
+  const memories: Array<{ id: number; fact: string }> = [];
+  const lines = content.split('\n');
+  const memoryRegex = /^-\s*\[ID:\s*(\d+)\]\s*(.*)$/;
 
-  const headerIndex = currentContent.indexOf(MEMORY_SECTION_HEADER);
-
-  if (headerIndex === -1) {
-    // Header not found, append header and then the entry
-    const separator = ensureNewlineSeparation(currentContent);
-    return (
-      currentContent +
-      `${separator}${MEMORY_SECTION_HEADER}\n${newMemoryItem}\n`
-    );
-  } else {
-    // Header found, find where to insert the new memory entry
-    const startOfSectionContent = headerIndex + MEMORY_SECTION_HEADER.length;
-    let endOfSectionIndex = currentContent.indexOf(
-      '\n## ',
-      startOfSectionContent,
-    );
-    if (endOfSectionIndex === -1) {
-      endOfSectionIndex = currentContent.length; // End of file
+  for (const line of lines) {
+    const match = line.trim().match(memoryRegex);
+    if (match) {
+      memories.push({
+        id: parseInt(match[1], 10),
+        fact: match[2].trim(),
+      });
     }
-
-    const beforeSectionMarker = currentContent
-      .substring(0, startOfSectionContent)
-      .trimEnd();
-    let sectionContent = currentContent
-      .substring(startOfSectionContent, endOfSectionIndex)
-      .trimEnd();
-    const afterSectionMarker = currentContent.substring(endOfSectionIndex);
-
-    sectionContent += `\n${newMemoryItem}`;
-    return (
-      `${beforeSectionMarker}\n${sectionContent.trimStart()}\n${afterSectionMarker}`.trimEnd() +
-      '\n'
-    );
   }
+  return memories;
 }
 
-class MemoryToolInvocation extends BaseToolInvocation<
-  SaveMemoryParams,
+/**
+ * Formats memories back into file content
+ */
+function formatMemories(memories: Array<{ id: number; fact: string }>): string {
+  let content = `${MEMORY_SECTION_HEADER}\n\n`;
+  for (const memory of memories) {
+    content += `- [ID: ${memory.id}] ${memory.fact}\n`;
+  }
+  return content;
+}
+
+class MemoriesToolInvocation extends BaseToolInvocation<
+  MemoriesParams,
   ToolResult
 > {
   private static readonly allowlist: Set<string> = new Set();
   private proposedNewContent: string | undefined;
 
   constructor(
-    params: SaveMemoryParams,
+    params: MemoriesParams,
     messageBus: MessageBus,
     toolName?: string,
     displayName?: string,
@@ -157,30 +136,41 @@ class MemoryToolInvocation extends BaseToolInvocation<
 
   getDescription(): string {
     const memoryFilePath = getGlobalMemoryFilePath();
-    return `in ${tildeifyPath(memoryFilePath)}`;
+    return `${this.params.action} in ${tildeifyPath(memoryFilePath)}`;
   }
 
   protected override async getConfirmationDetails(
     _abortSignal: AbortSignal,
   ): Promise<ToolEditConfirmationDetails | false> {
-    const memoryFilePath = getGlobalMemoryFilePath();
-    const allowlistKey = memoryFilePath;
+    if (this.params.action === 'fetch') {
+      return false;
+    }
 
-    if (MemoryToolInvocation.allowlist.has(allowlistKey)) {
+    const memoryFilePath = getGlobalMemoryFilePath();
+    const allowlistKey = `${this.params.action}:${memoryFilePath}`;
+
+    if (MemoriesToolInvocation.allowlist.has(allowlistKey)) {
       return false;
     }
 
     const currentContent = await readMemoryFileContent();
-    const { fact, modified_by_user, modified_content } = this.params;
+    const memories = parseMemories(currentContent);
 
-    // If an attacker injects modified_content, use it for the diff
-    // to expose the attack to the user. Otherwise, compute from 'fact'.
-    const contentForDiff =
-      modified_by_user && modified_content !== undefined
-        ? modified_content
-        : computeNewContent(currentContent, fact);
-
-    this.proposedNewContent = contentForDiff;
+    if (this.params.action === 'save' && this.params.fact) {
+      const nextId =
+        memories.length > 0 ? Math.max(...memories.map((m) => m.id)) + 1 : 1;
+      const updatedMemories = [
+        ...memories,
+        { id: nextId, fact: this.params.fact.replace(/[\r\n]/g, ' ').trim() },
+      ];
+      this.proposedNewContent = formatMemories(updatedMemories);
+    } else if (this.params.action === 'delete' && this.params.id) {
+      const targetId = parseInt(this.params.id, 10);
+      const updatedMemories = memories.filter((m) => m.id !== targetId);
+      this.proposedNewContent = formatMemories(updatedMemories);
+    } else {
+      return false;
+    }
 
     const fileName = path.basename(memoryFilePath);
     const fileDiff = Diff.createPatch(
@@ -194,7 +184,7 @@ class MemoryToolInvocation extends BaseToolInvocation<
 
     const confirmationDetails: ToolEditConfirmationDetails = {
       type: 'edit',
-      title: `Confirm Memory Save: ${tildeifyPath(memoryFilePath)}`,
+      title: `Confirm Memory ${this.params.action.toUpperCase()}: ${tildeifyPath(memoryFilePath)}`,
       fileName: memoryFilePath,
       filePath: memoryFilePath,
       fileDiff,
@@ -202,41 +192,73 @@ class MemoryToolInvocation extends BaseToolInvocation<
       newContent: this.proposedNewContent,
       onConfirm: async (outcome: ToolConfirmationOutcome) => {
         if (outcome === ToolConfirmationOutcome.ProceedAlways) {
-          MemoryToolInvocation.allowlist.add(allowlistKey);
+          MemoriesToolInvocation.allowlist.add(allowlistKey);
         }
-        // Policy updates are now handled centrally by the scheduler
       },
     };
     return confirmationDetails;
   }
 
   async execute(_signal: AbortSignal): Promise<ToolResult> {
-    const { fact, modified_by_user, modified_content } = this.params;
+    const { action, fact, id, modified_by_user, modified_content } =
+      this.params;
 
     try {
+      const currentContent = await readMemoryFileContent();
+      const memories = parseMemories(currentContent);
+
+      if (action === 'fetch') {
+        if (!id)
+          throw new Error('Parameter "id" is required for "fetch" action.');
+        const memory = memories.find((m) => m.id === parseInt(id, 10));
+        if (!memory) {
+          return {
+            llmContent: JSON.stringify({
+              success: false,
+              error: `Memory with ID ${id} not found.`,
+            }),
+            returnDisplay: `Memory with ID ${id} not found.`,
+          };
+        }
+        return {
+          llmContent: JSON.stringify({ success: true, memory }),
+          returnDisplay: `Memory [ID: ${memory.id}]: ${memory.fact}`,
+        };
+      }
+
       let contentToWrite: string;
       let successMessage: string;
 
-      // Sanitize the fact for use in the success message, matching the sanitization
-      // that happened inside computeNewContent.
-      const sanitizedFact = fact.replace(/[\r\n]/g, ' ').trim();
-
       if (modified_by_user && modified_content !== undefined) {
-        // User modified the content, so that is the source of truth.
         contentToWrite = modified_content;
-        successMessage = `Okay, I've updated the memory file with your modifications.`;
+        successMessage = `Okay, I've updated the memories with your modifications.`;
       } else {
-        // User approved the proposed change without modification.
-        // The source of truth is the exact content proposed during confirmation.
         if (this.proposedNewContent === undefined) {
-          // This case can be hit in flows without a confirmation step (e.g., --auto-confirm).
-          // As a fallback, we recompute the content now. This is safe because
-          // computeNewContent sanitizes the input.
-          const currentContent = await readMemoryFileContent();
-          this.proposedNewContent = computeNewContent(currentContent, fact);
+          if (action === 'save' && fact) {
+            const nextId =
+              memories.length > 0
+                ? Math.max(...memories.map((m) => m.id)) + 1
+                : 1;
+            const updatedMemories = [
+              ...memories,
+              { id: nextId, fact: fact.replace(/[\r\n]/g, ' ').trim() },
+            ];
+            this.proposedNewContent = formatMemories(updatedMemories);
+            successMessage = `Okay, I've saved that memory with ID ${nextId}.`;
+          } else if (action === 'delete' && id) {
+            const targetId = parseInt(id, 10);
+            const updatedMemories = memories.filter((m) => m.id !== targetId);
+            this.proposedNewContent = formatMemories(updatedMemories);
+            successMessage = `Okay, I've deleted memory with ID ${id}.`;
+          } else {
+            throw new Error(
+              `Invalid action or missing parameters for ${action}.`,
+            );
+          }
+        } else {
+          successMessage = `Memory ${action} successful.`;
         }
         contentToWrite = this.proposedNewContent;
-        successMessage = `Okay, I've remembered that: "${sanitizedFact}"`;
       }
 
       await fs.mkdir(path.dirname(getGlobalMemoryFilePath()), {
@@ -245,10 +267,7 @@ class MemoryToolInvocation extends BaseToolInvocation<
       await fs.writeFile(getGlobalMemoryFilePath(), contentToWrite, 'utf-8');
 
       return {
-        llmContent: JSON.stringify({
-          success: true,
-          message: successMessage,
-        }),
+        llmContent: JSON.stringify({ success: true, message: successMessage }),
         returnDisplay: successMessage,
       };
     } catch (error) {
@@ -257,9 +276,9 @@ class MemoryToolInvocation extends BaseToolInvocation<
       return {
         llmContent: JSON.stringify({
           success: false,
-          error: `Failed to save memory. Detail: ${errorMessage}`,
+          error: `Failed to manage memories. Detail: ${errorMessage}`,
         }),
-        returnDisplay: `Error saving memory: ${errorMessage}`,
+        returnDisplay: `Error managing memories: ${errorMessage}`,
         error: {
           message: errorMessage,
           type: ToolErrorType.MEMORY_TOOL_EXECUTION_ERROR,
@@ -269,16 +288,16 @@ class MemoryToolInvocation extends BaseToolInvocation<
   }
 }
 
-export class MemoryTool
-  extends BaseDeclarativeTool<SaveMemoryParams, ToolResult>
-  implements ModifiableDeclarativeTool<SaveMemoryParams>
+export class MemoriesTool
+  extends BaseDeclarativeTool<MemoriesParams, ToolResult>
+  implements ModifiableDeclarativeTool<MemoriesParams>
 {
   static readonly Name = MEMORY_TOOL_NAME;
 
   constructor(messageBus: MessageBus) {
     super(
-      MemoryTool.Name,
-      'SaveMemory',
+      MemoriesTool.Name,
+      'Memories',
       MEMORY_DEFINITION.base.description!,
       Kind.Think,
       MEMORY_DEFINITION.base.parametersJsonSchema,
@@ -289,22 +308,30 @@ export class MemoryTool
   }
 
   protected override validateToolParamValues(
-    params: SaveMemoryParams,
+    params: MemoriesParams,
   ): string | null {
-    if (params.fact.trim() === '') {
-      return 'Parameter "fact" must be a non-empty string.';
+    if (
+      params.action === 'save' &&
+      (!params.fact || params.fact.trim() === '')
+    ) {
+      return 'Parameter "fact" must be a non-empty string for "save" action.';
     }
-
+    if (
+      (params.action === 'delete' || params.action === 'fetch') &&
+      !params.id
+    ) {
+      return 'Parameter "id" is required for "delete" and "fetch" actions.';
+    }
     return null;
   }
 
   protected createInvocation(
-    params: SaveMemoryParams,
+    params: MemoriesParams,
     messageBus: MessageBus,
     toolName?: string,
     displayName?: string,
   ) {
-    return new MemoryToolInvocation(
+    return new MemoriesToolInvocation(
       params,
       messageBus,
       toolName ?? this.name,
@@ -316,25 +343,36 @@ export class MemoryTool
     return resolveToolDeclaration(MEMORY_DEFINITION, modelId);
   }
 
-  getModifyContext(_abortSignal: AbortSignal): ModifyContext<SaveMemoryParams> {
+  getModifyContext(_abortSignal: AbortSignal): ModifyContext<MemoriesParams> {
     return {
-      getFilePath: (_params: SaveMemoryParams) => getGlobalMemoryFilePath(),
-      getCurrentContent: async (_params: SaveMemoryParams): Promise<string> =>
+      getFilePath: (_params: MemoriesParams) => getGlobalMemoryFilePath(),
+      getCurrentContent: async (_params: MemoriesParams): Promise<string> =>
         readMemoryFileContent(),
-      getProposedContent: async (params: SaveMemoryParams): Promise<string> => {
+      getProposedContent: async (params: MemoriesParams): Promise<string> => {
         const currentContent = await readMemoryFileContent();
-        const { fact, modified_by_user, modified_content } = params;
-        // Ensure the editor is populated with the same content
-        // that the confirmation diff would show.
-        return modified_by_user && modified_content !== undefined
-          ? modified_content
-          : computeNewContent(currentContent, fact);
+        const memories = parseMemories(currentContent);
+        if (params.action === 'save' && params.fact) {
+          const nextId =
+            memories.length > 0
+              ? Math.max(...memories.map((m) => m.id)) + 1
+              : 1;
+          const updatedMemories = [
+            ...memories,
+            { id: nextId, fact: params.fact.replace(/[\r\n]/g, ' ').trim() },
+          ];
+          return formatMemories(updatedMemories);
+        } else if (params.action === 'delete' && params.id) {
+          const targetId = parseInt(params.id, 10);
+          const updatedMemories = memories.filter((m) => m.id !== targetId);
+          return formatMemories(updatedMemories);
+        }
+        return currentContent;
       },
       createUpdatedParams: (
         _oldContent: string,
         modifiedProposedContent: string,
-        originalParams: SaveMemoryParams,
-      ): SaveMemoryParams => ({
+        originalParams: MemoriesParams,
+      ): MemoriesParams => ({
         ...originalParams,
         modified_by_user: true,
         modified_content: modifiedProposedContent,

@@ -9,13 +9,15 @@ import { flattenMemory } from '../config/memory.js';
 import { refreshServerHierarchicalMemory } from '../utils/memoryDiscovery.js';
 import type { MessageActionReturn, ToolActionReturn } from './types.js';
 
+import { DEFAULT_CONTEXT_FILENAME } from '../tools/memoryTool.js';
+
 export function showMemory(config: Config): MessageActionReturn {
   const memoryContent = flattenMemory(config.getUserMemory());
   const fileCount = config.getGeminiMdFileCount() || 0;
   let content: string;
 
   if (memoryContent.length > 0) {
-    content = `Current memory content from ${fileCount} file(s):\n\n---\n${memoryContent}\n---`;
+    content = `Current memory content from ${fileCount} file(s) (${DEFAULT_CONTEXT_FILENAME}):\n\n---\n${memoryContent}\n---`;
   } else {
     content = 'Memory is currently empty.';
   }
@@ -39,8 +41,8 @@ export function addMemory(
   }
   return {
     type: 'tool',
-    toolName: 'save_memory',
-    toolArgs: { fact: args.trim() },
+    toolName: 'memories',
+    toolArgs: { action: 'save', fact: args.trim() },
   };
 }
 
@@ -82,11 +84,11 @@ export function listMemoryFiles(config: Config): MessageActionReturn {
   let content: string;
 
   if (fileCount > 0) {
-    content = `There are ${fileCount} GEMINI.md file(s) in use:\n\n${filePaths.join(
+    content = `There are ${fileCount} ${DEFAULT_CONTEXT_FILENAME} file(s) in use:\n\n${filePaths.join(
       '\n',
     )}`;
   } else {
-    content = 'No GEMINI.md files in use.';
+    content = `No ${DEFAULT_CONTEXT_FILENAME} files in use.`;
   }
 
   return {

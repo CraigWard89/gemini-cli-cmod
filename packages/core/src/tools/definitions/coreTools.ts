@@ -17,8 +17,8 @@ import {
   getShellDeclaration,
   getExitPlanModeDeclaration,
   getActivateSkillDeclaration,
-
-  getPowerShellDeclaration} from './dynamic-declaration-helpers.js';
+  getPowerShellDeclaration,
+} from './dynamic-declaration-helpers.js';
 
 // Re-export names for compatibility
 export {
@@ -138,9 +138,9 @@ export const READ_MANY_FILES_DEFINITION: ToolDefinition = {
 
 export const MEMORY_DEFINITION: ToolDefinition = {
   get base() {
-    return DEFAULT_LEGACY_SET.save_memory;
+    return DEFAULT_LEGACY_SET.memories;
   },
-  overrides: (modelId) => getToolSet(modelId).save_memory,
+  overrides: (modelId) => getToolSet(modelId).memories,
 };
 
 export const WRITE_TODOS_DEFINITION: ToolDefinition = {
@@ -188,7 +188,6 @@ export const DIFF_DEFINITION: ToolDefinition = {
 // ============================================================================
 // DYNAMIC TOOL DEFINITIONS (LEGACY EXPORTS)
 // ============================================================================
-
 
 export function getShellDefinition(
   enableInteractiveShell: boolean,

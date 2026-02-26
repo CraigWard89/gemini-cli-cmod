@@ -26,7 +26,7 @@ export const WRITE_TODOS_TOOL_NAME = 'write_todos';
 export const WEB_FETCH_TOOL_NAME = 'web_fetch';
 export const READ_MANY_FILES_TOOL_NAME = 'read_many_files';
 
-export const MEMORY_TOOL_NAME = 'save_memory';
+export const MEMORY_TOOL_NAME = 'memories';
 export const GET_INTERNAL_DOCS_TOOL_NAME = 'get_internal_docs';
 export const ACTIVATE_SKILL_TOOL_NAME = 'activate_skill';
 export const ASK_USER_TOOL_NAME = 'ask_user';

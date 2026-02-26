@@ -487,26 +487,33 @@ Use this tool when the user's query implies needing the content of several files
     },
   },
 
-  save_memory: {
+  memories: {
     name: MEMORY_TOOL_NAME,
-    description: `
-Saves concise global user context (preferences, facts) for use across ALL workspaces.
-
-### CRITICAL: GLOBAL CONTEXT ONLY
-NEVER save workspace-specific context, local paths, or commands (e.g. "The entry point is src/index.js", "The test command is npm test"). These are local to the current workspace and must NOT be saved globally. EXCLUSIVELY for context relevant across ALL workspaces.
-
-- Use for "Remember X" or clear personal facts.
-- Do NOT use for session context.`,
+    description: `Manages global user memories (preferences, facts) across ALL workspaces.
+    - 'save': Stores a new fact and returns its unique ID.
+    - 'delete': Removes a memory by its ID.
+    - 'fetch': Retrieves a specific memory by its ID.
+    
+    All memories are stored in the global 'MEMORIES.md' file and loaded as context at startup.`,
     parametersJsonSchema: {
       type: 'object',
       properties: {
+        action: {
+          type: 'string',
+          enum: ['save', 'delete', 'fetch'],
+          description: 'The action to perform on memories.',
+        },
         fact: {
           type: 'string',
+          description: 'The fact to remember (required for "save").',
+        },
+        id: {
+          type: 'string',
           description:
-            'The specific fact or piece of information to remember. Should be a clear, self-contained statement.',
+            'The unique ID of the memory (required for "delete" and "fetch").',
         },
       },
-      required: ['fact'],
+      required: ['action'],
       additionalProperties: false,
     },
   },

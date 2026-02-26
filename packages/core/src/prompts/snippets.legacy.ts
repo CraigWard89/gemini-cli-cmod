@@ -19,6 +19,7 @@ import {
   WRITE_FILE_TOOL_NAME,
   WRITE_TODOS_TOOL_NAME,
 } from '../tools/tool-names.js';
+import { DEFAULT_CONTEXT_FILENAME } from '../tools/memoryTool.js';
 
 // --- Options Structs ---
 
@@ -131,11 +132,12 @@ ${renderFinalReminder(options.finalReminder)}
 export function renderFinalShell(
   basePrompt: string,
   userMemory?: string | HierarchicalMemory,
+  contextFilenames?: string[],
 ): string {
   return `
 ${basePrompt.trim()}
 
-${renderUserMemory(userMemory)}
+${renderUserMemory(userMemory, contextFilenames)}
 `.trim();
 }
 
@@ -344,13 +346,18 @@ export function renderFinalReminder(options?: FinalReminderOptions): string {
 Your core function is efficient and safe assistance. Balance extreme conciseness with the crucial need for clarity, especially regarding safety and potential system modifications. Always prioritize user control and project conventions. Never make assumptions about the contents of files; instead use '${options.readFileToolName}' to ensure you aren't making broad assumptions. Finally, you are an agent - please keep going until the user's query is completely resolved.`.trim();
 }
 
-export function renderUserMemory(memory?: string | HierarchicalMemory): string {
+export function renderUserMemory(
+  memory?: string | HierarchicalMemory,
+  contextFilenames?: string[],
+): string {
   if (!memory) return '';
   if (typeof memory === 'string') {
     const trimmed = memory.trim();
     if (trimmed.length === 0) return '';
+    const filenames = contextFilenames ?? [DEFAULT_CONTEXT_FILENAME];
+    const formattedHeader = filenames.join(', ');
     return `
-# Contextual Instructions (GEMINI.md)
+# Contextual Instructions (${formattedHeader})
 The following content is loaded from local and global configuration files.
 **Context Precedence:**
 - **Global (~/.gemini/):** foundational user preferences. Apply these broadly.
@@ -615,7 +622,7 @@ function toolUsageRememberingFacts(
   options: OperationalGuidelinesOptions,
 ): string {
   const base = `
-- **Remembering Facts:** Use the '${MEMORY_TOOL_NAME}' tool to remember specific, *user-related* facts or preferences when the user explicitly asks, or when they state a clear, concise piece of information that would help personalize or streamline *your future interactions with them* (e.g., preferred coding style, common project paths they use, personal tool aliases). This tool is for user-specific information that should persist across sessions. Do *not* use it for general project context or information.`;
+- **Memories Tool:** Use the '${MEMORY_TOOL_NAME}' tool to manage global user preferences, personal facts, or high-level information that applies across ALL sessions. You can save new facts (generating unique IDs), delete them by ID, or fetch specific ones. Never save workspace-specific context, local file paths, or transient session state. Do not use memories to store summaries of code changes, bug fixes, or findings discovered during a task; this tool is for persistent user-related information only.`;
   const suffix = options.interactive
     ? ' If unsure whether to save something, you can ask the user, "Should I remember that for you?"'
     : '';

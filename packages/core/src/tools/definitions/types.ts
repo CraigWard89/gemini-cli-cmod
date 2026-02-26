@@ -46,7 +46,7 @@ export interface CoreToolSet {
   google_web_search: FunctionDeclaration;
   web_fetch: FunctionDeclaration;
   read_many_files: FunctionDeclaration;
-  save_memory: FunctionDeclaration;
+  memories: FunctionDeclaration;
   write_todos: FunctionDeclaration;
   get_internal_docs: FunctionDeclaration;
   ask_user: FunctionDeclaration;

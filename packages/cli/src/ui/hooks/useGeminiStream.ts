@@ -27,6 +27,7 @@ import {
   runInDevTraceSpan,
   EDIT_TOOL_NAMES,
   ASK_USER_TOOL_NAME,
+  MEMORY_TOOL_NAME,
   processRestorableToolCalls,
   recordToolCallInteractions,
   ToolErrorType,
@@ -1540,10 +1541,10 @@ export const useGeminiStream = (
         markToolsAsSubmitted(clientTools.map((t) => t.request.callId));
       }
 
-      // Identify new, successful save_memory calls that we haven't processed yet.
+      // Identify new, successful memories calls that we haven't processed yet.
       const newSuccessfulMemorySaves = completedAndReadyToSubmitTools.filter(
         (t) =>
-          t.request.name === 'save_memory' &&
+          t.request.name === MEMORY_TOOL_NAME &&
           t.status === 'success' &&
           !processedMemoryToolsRef.current.has(t.request.callId),
       );

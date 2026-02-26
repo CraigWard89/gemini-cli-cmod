@@ -466,19 +466,33 @@ Use this tool when the user's query implies needing the content of several files
     },
   },
 
-  save_memory: {
+  memories: {
     name: MEMORY_TOOL_NAME,
-    description: `Persists global preferences or facts across ALL future sessions. Use this for recurring instructions like coding styles or tool aliases. Unlike '${WRITE_FILE_TOOL_NAME}', which is for project-specific files, this appends to a global memory file loaded in every workspace. If you are unsure whether a fact should be remembered globally, ask the user first. CRITICAL: Do not use for session-specific context or temporary data.`,
+    description: `Manages global user memories (preferences, facts) across ALL workspaces.
+    - 'save': Stores a new fact and returns its unique ID.
+    - 'delete': Removes a memory by its ID.
+    - 'fetch': Retrieves a specific memory by its ID.
+    
+    All memories are stored in the global 'MEMORIES.md' file and loaded as context at startup.`,
     parametersJsonSchema: {
       type: 'object',
       properties: {
+        action: {
+          type: 'string',
+          enum: ['save', 'delete', 'fetch'],
+          description: 'The action to perform on memories.',
+        },
         fact: {
           type: 'string',
+          description: 'The fact to remember (required for "save").',
+        },
+        id: {
+          type: 'string',
           description:
-            "A concise, global fact or preference (e.g., 'I prefer using tabs'). Do not include local paths or project-specific names.",
+            'The unique ID of the memory (required for "delete" and "fetch").',
         },
       },
-      required: ['fact'],
+      required: ['action'],
       additionalProperties: false,
     },
   },
