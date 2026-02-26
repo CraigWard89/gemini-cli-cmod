@@ -94,11 +94,11 @@ describe('MemoriesTool', () => {
       expect(memoriesTool.name).toBe('memories');
       expect(memoriesTool.displayName).toBe('Memories');
       expect(memoriesTool.schema.name).toBe('memories');
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(
-        (memoriesTool.schema.parametersJsonSchema as any).properties.action
-          .enum,
-      ).toContain('save');
+
+      const schema = memoriesTool.schema.parametersJsonSchema as {
+        properties: { action: { enum: string[] } };
+      };
+      expect(schema.properties.action.enum).toContain('save');
     });
 
     it('should save a new memory with ID 1 in an empty file', async () => {
@@ -170,6 +170,27 @@ describe('MemoriesTool', () => {
         'utf-8',
       );
       expect(result.returnDisplay).toBe("Okay, I've deleted memory with ID 1.");
+    });
+
+    it('should update a memory by ID', async () => {
+      const existingContent = `${MEMORY_SECTION_HEADER}\n\n- [ID: 1] first fact\n- [ID: 2] second fact\n`;
+      vi.mocked(fs.readFile).mockResolvedValue(existingContent);
+
+      const params = {
+        action: 'update' as const,
+        id: '2',
+        fact: 'updated second fact',
+      };
+      const invocation = memoriesTool.build(params);
+      const result = await invocation.execute(mockAbortSignal);
+
+      const expectedContent = `${MEMORY_SECTION_HEADER}\n\n- [ID: 1] first fact\n- [ID: 2] updated second fact\n`;
+      expect(fs.writeFile).toHaveBeenCalledWith(
+        expect.any(String),
+        expectedContent,
+        'utf-8',
+      );
+      expect(result.returnDisplay).toBe("Okay, I've updated memory with ID 2.");
     });
 
     it('should return error if fetching non-existent ID', async () => {

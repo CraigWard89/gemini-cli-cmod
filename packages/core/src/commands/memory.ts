@@ -46,6 +46,42 @@ export function addMemory(
   };
 }
 
+export function editMemory(
+  args?: string,
+): MessageActionReturn | ToolActionReturn {
+  const match = args?.trim().match(/^(\d+)\s+(.*)$/);
+  if (!match) {
+    return {
+      type: 'message',
+      messageType: 'error',
+      content: 'Usage: /memory edit <id> <new text>',
+    };
+  }
+  return {
+    type: 'tool',
+    toolName: 'memories',
+    toolArgs: { action: 'update', id: match[1], fact: match[2].trim() },
+  };
+}
+
+export function deleteMemory(
+  args?: string,
+): MessageActionReturn | ToolActionReturn {
+  const id = args?.trim();
+  if (!id || !/^\d+$/.test(id)) {
+    return {
+      type: 'message',
+      messageType: 'error',
+      content: 'Usage: /memory delete <id>',
+    };
+  }
+  return {
+    type: 'tool',
+    toolName: 'memories',
+    toolArgs: { action: 'delete', id },
+  };
+}
+
 export async function refreshMemory(
   config: Config,
 ): Promise<MessageActionReturn> {

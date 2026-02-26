@@ -472,6 +472,7 @@ Use this tool when the user's query implies needing the content of several files
     - 'save': Stores a new fact and returns its unique ID.
     - 'delete': Removes a memory by its ID.
     - 'fetch': Retrieves a specific memory by its ID.
+    - 'update': Modifies an existing memory by its ID.
     
     All memories are stored in the global 'MEMORIES.md' file and loaded as context at startup.`,
     parametersJsonSchema: {
@@ -479,7 +480,7 @@ Use this tool when the user's query implies needing the content of several files
       properties: {
         action: {
           type: 'string',
-          enum: ['save', 'delete', 'fetch'],
+          enum: ['save', 'delete', 'fetch', 'update'],
           description: 'The action to perform on memories.',
         },
         fact: {

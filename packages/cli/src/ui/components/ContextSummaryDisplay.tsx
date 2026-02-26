@@ -13,6 +13,7 @@ import { isNarrowWidth } from '../utils/isNarrowWidth.js';
 
 interface ContextSummaryDisplayProps {
   geminiMdFileCount: number;
+  memoryCount: number;
   contextFileNames: string[];
   mcpServers?: Record<string, MCPServerConfig>;
   blockedMcpServers?: Array<{ name: string; extensionName: string }>;
@@ -23,6 +24,7 @@ interface ContextSummaryDisplayProps {
 
 export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
   geminiMdFileCount,
+  memoryCount,
   contextFileNames,
   mcpServers,
   blockedMcpServers,
@@ -38,6 +40,7 @@ export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
 
   if (
     geminiMdFileCount === 0 &&
+    memoryCount === 0 &&
     mcpServerCount === 0 &&
     blockedMcpServerCount === 0 &&
     openFileCount === 0 &&
@@ -65,6 +68,13 @@ export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
     return `${geminiMdFileCount} ${name} file${
       geminiMdFileCount > 1 ? 's' : ''
     }`;
+  })();
+
+  const memoryText = (() => {
+    if (memoryCount === 0) {
+      return '';
+    }
+    return `${memoryCount} memor${memoryCount > 1 ? 'ies' : 'y'}`;
   })();
 
   const mcpText = (() => {
@@ -108,6 +118,7 @@ export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
   const summaryParts = [
     openFilesText,
     geminiMdText,
+    memoryText,
     mcpText,
     skillText,
     backgroundText,

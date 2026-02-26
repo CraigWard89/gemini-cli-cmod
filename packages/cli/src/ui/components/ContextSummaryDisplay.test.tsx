@@ -34,6 +34,7 @@ const renderWithWidth = async (
 describe('<ContextSummaryDisplay />', () => {
   const baseProps = {
     geminiMdFileCount: 0,
+    memoryCount: 0,
     contextFileNames: [],
     mcpServers: {},
     ideContext: {

@@ -1204,6 +1204,7 @@ describe('startInteractiveUI', () => {
     themeError: null,
     shouldOpenAuthDialog: false,
     geminiMdFileCount: 0,
+    memoryCount: 0,
   };
 
   vi.mock('./ui/utils/updateCheck.js', () => ({

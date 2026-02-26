@@ -2176,11 +2176,15 @@ Logging in with Google... Restarting Gemini CLI to continue.
   );
 
   const [geminiMdFileCount, setGeminiMdFileCount] = useState<number>(
-    config.getGeminiMdFileCount(),
+    initializationResult.geminiMdFileCount,
+  );
+  const [memoryCount, setMemoryCount] = useState<number>(
+    initializationResult.memoryCount,
   );
   useEffect(() => {
     const handleMemoryChanged = (result: MemoryChangedPayload) => {
       setGeminiMdFileCount(result.fileCount);
+      setMemoryCount(result.memoryCount);
     };
     coreEvents.on(CoreEvent.MemoryChanged, handleMemoryChanged);
     return () => {
@@ -2250,6 +2254,7 @@ Logging in with Google... Restarting Gemini CLI to continue.
       loopDetectionConfirmationRequest,
       permissionConfirmationRequest,
       geminiMdFileCount,
+      memoryCount,
       streamingState,
       initError,
       pendingGeminiHistoryItems,
@@ -2376,6 +2381,7 @@ Logging in with Google... Restarting Gemini CLI to continue.
       loopDetectionConfirmationRequest,
       permissionConfirmationRequest,
       geminiMdFileCount,
+      memoryCount,
       streamingState,
       initError,
       pendingGeminiHistoryItems,

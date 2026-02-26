@@ -74,6 +74,7 @@ export interface OutputPayload {
  */
 export interface MemoryChangedPayload {
   fileCount: number;
+  memoryCount: number;
 }
 
 /**

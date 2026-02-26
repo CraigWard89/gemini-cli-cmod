@@ -558,7 +558,7 @@ export class PowerShellTool extends ShellTool {
     super(
       config,
       messageBus,
-      PowerShellTool.PowerShellName,
+      'PowerShellTool',
       'PowerShell',
       'Executes a command within a PowerShell session.',
     );

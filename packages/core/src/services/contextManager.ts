@@ -140,6 +140,7 @@ export class ContextManager {
   private emitMemoryChanged(): void {
     coreEvents.emit(CoreEvent.MemoryChanged, {
       fileCount: this.loadedPaths.size,
+      memoryCount: 0,
     });
   }
 

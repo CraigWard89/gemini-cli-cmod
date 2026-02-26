@@ -62,7 +62,7 @@ export function getAllGeminiMdFilenames(): string[] {
 }
 
 interface MemoriesParams {
-  action: 'save' | 'delete' | 'fetch';
+  action: 'save' | 'delete' | 'fetch' | 'update';
   fact?: string;
   id?: string;
   modified_by_user?: boolean;
@@ -168,6 +168,18 @@ class MemoriesToolInvocation extends BaseToolInvocation<
       const targetId = parseInt(this.params.id, 10);
       const updatedMemories = memories.filter((m) => m.id !== targetId);
       this.proposedNewContent = formatMemories(updatedMemories);
+    } else if (
+      this.params.action === 'update' &&
+      this.params.id &&
+      this.params.fact
+    ) {
+      const targetId = parseInt(this.params.id, 10);
+      const updatedMemories = memories.map((m) =>
+        m.id === targetId
+          ? { ...m, fact: this.params.fact!.replace(/[\r\n]/g, ' ').trim() }
+          : m,
+      );
+      this.proposedNewContent = formatMemories(updatedMemories);
     } else {
       return false;
     }
@@ -250,6 +262,18 @@ class MemoriesToolInvocation extends BaseToolInvocation<
             const updatedMemories = memories.filter((m) => m.id !== targetId);
             this.proposedNewContent = formatMemories(updatedMemories);
             successMessage = `Okay, I've deleted memory with ID ${id}.`;
+          } else if (action === 'update' && id && fact) {
+            const targetId = parseInt(id, 10);
+            if (!memories.some((m) => m.id === targetId)) {
+              throw new Error(`Memory with ID ${id} not found.`);
+            }
+            const updatedMemories = memories.map((m) =>
+              m.id === targetId
+                ? { ...m, fact: fact.replace(/[\r\n]/g, ' ').trim() }
+                : m,
+            );
+            this.proposedNewContent = formatMemories(updatedMemories);
+            successMessage = `Okay, I've updated memory with ID ${id}.`;
           } else {
             throw new Error(
               `Invalid action or missing parameters for ${action}.`,
@@ -311,17 +335,20 @@ export class MemoriesTool
     params: MemoriesParams,
   ): string | null {
     if (
-      params.action === 'save' &&
+      (params.action === 'save' || params.action === 'update') &&
       (!params.fact || params.fact.trim() === '')
     ) {
-      return 'Parameter "fact" must be a non-empty string for "save" action.';
+      return `Parameter "fact" must be a non-empty string for "${params.action}" action.`;
     }
     if (
-      (params.action === 'delete' || params.action === 'fetch') &&
+      (params.action === 'delete' ||
+        params.action === 'fetch' ||
+        params.action === 'update') &&
       !params.id
     ) {
-      return 'Parameter "id" is required for "delete" and "fetch" actions.';
+      return `Parameter "id" is required for "${params.action}" actions.`;
     }
+
     return null;
   }
 
@@ -364,6 +391,14 @@ export class MemoriesTool
         } else if (params.action === 'delete' && params.id) {
           const targetId = parseInt(params.id, 10);
           const updatedMemories = memories.filter((m) => m.id !== targetId);
+          return formatMemories(updatedMemories);
+        } else if (params.action === 'update' && params.id && params.fact) {
+          const targetId = parseInt(params.id, 10);
+          const updatedMemories = memories.map((m) =>
+            m.id === targetId
+              ? { ...m, fact: params.fact!.replace(/[\r\n]/g, ' ').trim() }
+              : m,
+          );
           return formatMemories(updatedMemories);
         }
         return currentContent;

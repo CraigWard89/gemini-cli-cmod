@@ -295,6 +295,7 @@ export class AppRig {
             themeError: null,
             shouldOpenAuthDialog: false,
             geminiMdFileCount: 0,
+            memoryCount: 0,
           }}
         />,
         {

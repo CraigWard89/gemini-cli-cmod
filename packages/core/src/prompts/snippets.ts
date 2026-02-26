@@ -661,7 +661,7 @@ function toolUsageRememberingFacts(
   const base = `
 - **Memories Tool:** Use ${formatToolName(
     MEMORY_TOOL_NAME,
-  )} to manage global user preferences, personal facts, or high-level information that applies across ALL sessions. You can save new facts (generating unique IDs), delete them by ID, or fetch specific ones. Never save workspace-specific context, local file paths, or transient session state. Do not use memories to store summaries of code changes, bug fixes, or findings discovered during a task; this tool is for persistent user-related information only.`;
+  )} to manage global user preferences, personal facts, or high-level information that applies across ALL sessions. You can save new facts (generating unique IDs), delete them by ID, fetch specific ones, or update existing ones. Before saving a new fact, consider if it's related to an existing memory; if so, fetch the relevant memory and use 'update' to modify it instead of creating a duplicate. Never save workspace-specific context, local file paths, or transient session state. Do not use memories to store summaries of code changes, bug fixes, or findings discovered during a task; this tool is for persistent user-related information only.`;
   const suffix = options.interactive
     ? ' If unsure whether a fact is worth remembering globally, ask the user.'
     : '';

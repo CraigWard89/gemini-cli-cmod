@@ -52,7 +52,7 @@ describe('memory commands', () => {
       if (result.type === 'message') {
         expect(result.messageType).toBe('info');
         expect(result.content).toContain(
-          'Current memory content from 1 file(s)',
+          'Current memory content from 1 file(s) (MEMORIES.md)',
         );
         expect(result.content).toContain('some memory content');
       }
@@ -77,8 +77,8 @@ describe('memory commands', () => {
       const result = addMemory('new memory');
       expect(result.type).toBe('tool');
       if (result.type === 'tool') {
-        expect(result.toolName).toBe('save_memory');
-        expect(result.toolArgs).toEqual({ fact: 'new memory' });
+        expect(result.toolName).toBe('memories');
+        expect(result.toolArgs).toEqual({ action: 'save', fact: 'new memory' });
       }
     });
 
@@ -86,7 +86,7 @@ describe('memory commands', () => {
       const result = addMemory('  new memory  ');
       expect(result.type).toBe('tool');
       if (result.type === 'tool') {
-        expect(result.toolArgs).toEqual({ fact: 'new memory' });
+        expect(result.toolArgs).toEqual({ action: 'save', fact: 'new memory' });
       }
     });
 
@@ -123,6 +123,7 @@ describe('memory commands', () => {
       mockRefresh.mockResolvedValue({
         memoryContent: { project: 'refreshed content' },
         fileCount: 2,
+        memoryCount: 0,
         filePaths: [],
       });
 
@@ -145,6 +146,7 @@ describe('memory commands', () => {
       mockRefresh.mockResolvedValue({
         memoryContent: { project: '' },
         fileCount: 0,
+        memoryCount: 0,
         filePaths: [],
       });
 
@@ -161,7 +163,7 @@ describe('memory commands', () => {
 
   describe('listMemoryFiles', () => {
     it('should list the memory files in use', () => {
-      const filePaths = ['/path/to/GEMINI.md', '/other/path/GEMINI.md'];
+      const filePaths = ['/path/to/MEMORIES.md', '/other/path/MEMORIES.md'];
       vi.mocked(mockConfig.getGeminiMdFilePaths).mockReturnValue(filePaths);
 
       const result = listMemoryFiles(mockConfig);
@@ -170,7 +172,7 @@ describe('memory commands', () => {
       if (result.type === 'message') {
         expect(result.messageType).toBe('info');
         expect(result.content).toContain(
-          'There are 2 GEMINI.md file(s) in use:',
+          'There are 2 MEMORIES.md file(s) in use:',
         );
         expect(result.content).toContain(filePaths.join('\n'));
       }
@@ -184,7 +186,7 @@ describe('memory commands', () => {
       expect(result.type).toBe('message');
       if (result.type === 'message') {
         expect(result.messageType).toBe('info');
-        expect(result.content).toBe('No GEMINI.md files in use.');
+        expect(result.content).toBe('No MEMORIES.md files in use.');
       }
     });
 
@@ -198,7 +200,7 @@ describe('memory commands', () => {
       expect(result.type).toBe('message');
       if (result.type === 'message') {
         expect(result.messageType).toBe('info');
-        expect(result.content).toBe('No GEMINI.md files in use.');
+        expect(result.content).toBe('No MEMORIES.md files in use.');
       }
     });
   });

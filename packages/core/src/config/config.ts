@@ -451,6 +451,7 @@ export interface ConfigParameters {
   userMemory?: string | HierarchicalMemory;
   geminiMdFileCount?: number;
   geminiMdFilePaths?: string[];
+  memoryCount?: number;
   approvalMode?: ApprovalMode;
   showMemoryUsage?: boolean;
   contextFileName?: string | string[];
@@ -595,6 +596,7 @@ export class Config {
   private userMemory: string | HierarchicalMemory;
   private geminiMdFileCount: number;
   private geminiMdFilePaths: string[];
+  private memoryCount: number;
   private readonly showMemoryUsage: boolean;
   private readonly accessibility: AccessibilitySettings;
   private readonly telemetrySettings: TelemetrySettings;
@@ -781,6 +783,7 @@ export class Config {
     this.userMemory = params.userMemory ?? '';
     this.geminiMdFileCount = params.geminiMdFileCount ?? 0;
     this.geminiMdFilePaths = params.geminiMdFilePaths ?? [];
+    this.memoryCount = params.memoryCount ?? 0;
     this.showMemoryUsage = params.showMemoryUsage ?? false;
     this.accessibility = params.accessibility ?? {};
     this.telemetrySettings = {
@@ -1830,6 +1833,14 @@ export class Config {
     this.geminiMdFilePaths = paths;
   }
 
+  getMemoryCount(): number {
+    return this.memoryCount;
+  }
+
+  setMemoryCount(count: number): void {
+    this.memoryCount = count;
+  }
+
   getApprovalMode(): ApprovalMode {
     return this.policyEngine.getApprovalMode();
   }
@@ -2643,7 +2654,7 @@ export class Config {
       registerFn: () => void,
     ) => {
       const className = toolClass.name;
-      const toolName = toolClass.Name || className;
+      const toolIdentifier = toolClass.Name || className;
       const coreTools = this.getCoreTools();
       // On some platforms, the className can be minified to _ClassName.
       const normalizedClassName = className.replace(/^_+/, '');
@@ -2652,9 +2663,9 @@ export class Config {
       if (coreTools) {
         isEnabled = coreTools.some(
           (tool) =>
-            tool === toolName ||
+            tool === toolIdentifier ||
             tool === normalizedClassName ||
-            tool.startsWith(`${toolName}(`) ||
+            tool.startsWith(`${toolIdentifier}(`) ||
             tool.startsWith(`${normalizedClassName}(`),
         );
       }
@@ -2713,9 +2724,11 @@ export class Config {
     maybeRegister(ShellTool, () =>
       registry.registerTool(new ShellTool(this, this.messageBus)),
     );
-    maybeRegister(PowerShellTool, () =>
-      registry.registerTool(new PowerShellTool(this, this.messageBus)),
-    );
+    if (os.platform() === 'win32') {
+      maybeRegister(PowerShellTool, () =>
+        registry.registerTool(new PowerShellTool(this, this.messageBus)),
+      );
+    }
     maybeRegister(MemoriesTool, () =>
       registry.registerTool(new MemoriesTool(this.messageBus)),
     );

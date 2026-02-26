@@ -6,8 +6,8 @@
 
 import {
   addMemory,
-  listMemoryFiles,
-  refreshMemory,
+  deleteMemory,
+  editMemory,
   showMemory,
 } from '@google/gemini-cli-core';
 import { MessageType } from '../types.js';
@@ -22,7 +22,7 @@ export const memoryCommand: SlashCommand = {
   subCommands: [
     {
       name: 'show',
-      description: 'Show the current memory contents',
+      description: 'Show the current stored memories (facts)',
       kind: CommandKind.BUILT_IN,
       autoExecute: true,
       action: async (context) => {
@@ -63,62 +63,50 @@ export const memoryCommand: SlashCommand = {
       },
     },
     {
-      name: 'refresh',
-      altNames: ['reload'],
-      description: 'Refresh the memory from the source',
+      name: 'edit',
+      description: 'Update content in the memory by ID',
       kind: CommandKind.BUILT_IN,
-      autoExecute: true,
-      action: async (context) => {
+      autoExecute: false,
+      action: (context, args): SlashCommandActionReturn | void => {
+        const result = editMemory(args);
+
+        if (result.type === 'message') {
+          return result;
+        }
+
         context.ui.addItem(
           {
             type: MessageType.INFO,
-            text: 'Refreshing memory from source files...',
+            text: `Attempting to update memory: "${args.trim()}"`,
           },
           Date.now(),
         );
 
-        try {
-          const config = context.services.config;
-          if (config) {
-            const result = await refreshMemory(config);
-
-            context.ui.addItem(
-              {
-                type: MessageType.INFO,
-                text: result.content,
-              },
-              Date.now(),
-            );
-          }
-        } catch (error) {
-          context.ui.addItem(
-            {
-              type: MessageType.ERROR,
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
-              text: `Error refreshing memory: ${(error as Error).message}`,
-            },
-            Date.now(),
-          );
-        }
+        return result;
       },
     },
     {
-      name: 'list',
-      description: 'Lists the paths of the GEMINI.md files in use',
+      name: 'delete',
+      altNames: ['remove', 'rm'],
+      description: 'Delete a memory by ID',
       kind: CommandKind.BUILT_IN,
-      autoExecute: true,
-      action: async (context) => {
-        const config = context.services.config;
-        if (!config) return;
-        const result = listMemoryFiles(config);
+      autoExecute: false,
+      action: (context, args): SlashCommandActionReturn | void => {
+        const result = deleteMemory(args);
+
+        if (result.type === 'message') {
+          return result;
+        }
 
         context.ui.addItem(
           {
             type: MessageType.INFO,
-            text: result.content,
+            text: `Attempting to delete memory with ID: "${args.trim()}"`,
           },
           Date.now(),
         );
+
+        return result;
       },
     },
   ],

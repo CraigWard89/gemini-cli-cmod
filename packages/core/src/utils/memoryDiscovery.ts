@@ -9,6 +9,7 @@ import * as fsSync from 'node:fs';
 import * as path from 'node:path';
 import { bfsFileSearch } from './bfsFileSearch.js';
 import { getAllGeminiMdFilenames } from '../tools/memoryTool.js';
+import { Storage } from '../config/storage.js';
 import type { FileDiscoveryService } from '../services/fileDiscoveryService.js';
 import { processImports } from './memoryImportProcessor.js';
 import type { FileFilteringOptions } from '../config/constants.js';
@@ -473,6 +474,7 @@ async function findUpwardGeminiFiles(
 export interface LoadServerHierarchicalMemoryResponse {
   memoryContent: HierarchicalMemory;
   fileCount: number;
+  memoryCount: number;
   filePaths: string[];
 }
 
@@ -540,6 +542,7 @@ export async function loadServerHierarchicalMemory(
     return {
       memoryContent: { global: '', extension: '', project: '' },
       fileCount: 0,
+      memoryCount: 0,
       filePaths: [],
     };
   }
@@ -551,6 +554,18 @@ export async function loadServerHierarchicalMemory(
     importFormat,
   );
   const contentsMap = new Map(allContents.map((c) => [c.filePath, c]));
+
+  // Count memories from MEMORIES.md
+  let memoryCount = 0;
+  const globalMemoryPath = normalizePath(Storage.getGlobalMemoryFilePath());
+  const globalMemoryContent = contentsMap.get(globalMemoryPath);
+  if (globalMemoryContent && globalMemoryContent.content) {
+    const memoryRegex = /^-\s*\[ID:\s*(\d+)\]\s*(.*)$/gm;
+    const matches = globalMemoryContent.content.match(memoryRegex);
+    if (matches) {
+      memoryCount = matches.length;
+    }
+  }
 
   // 3. CATEGORIZE: Back into Global, Project, Extension
   const hierarchicalMemory = categorizeAndConcatenate(
@@ -566,6 +581,7 @@ export async function loadServerHierarchicalMemory(
   return {
     memoryContent: hierarchicalMemory,
     fileCount: allContents.filter((c) => c.content !== null).length,
+    memoryCount,
     filePaths: allFilePaths,
   };
 }
@@ -601,7 +617,11 @@ export async function refreshServerHierarchicalMemory(config: Config) {
   config.setUserMemory(finalMemory);
   config.setGeminiMdFileCount(result.fileCount);
   config.setGeminiMdFilePaths(result.filePaths);
-  coreEvents.emit(CoreEvent.MemoryChanged, { fileCount: result.fileCount });
+  config.setMemoryCount(result.memoryCount);
+  coreEvents.emit(CoreEvent.MemoryChanged, {
+    fileCount: result.fileCount,
+    memoryCount: result.memoryCount,
+  });
   return result;
 }
 
