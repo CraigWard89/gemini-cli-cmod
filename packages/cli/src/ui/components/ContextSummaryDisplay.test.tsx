@@ -106,21 +106,29 @@ describe('<ContextSummaryDisplay />', () => {
     expect(narrowFrame().trim().split('\n').length).toBe(4);
     unmountNarrow();
   });
-  it('should not render empty parts', async () => {
+  it('should render all parts even when they are 0', async () => {
     const props = {
       ...baseProps,
       geminiMdFileCount: 0,
       contextFileNames: [],
       mcpServers: {},
       skillCount: 0,
+      backgroundProcessCount: 0,
       ideContext: {
         workspaceState: {
-          openFiles: [{ path: '/a/b/c', timestamp: Date.now() }],
+          openFiles: [],
         },
       },
     };
-    const { lastFrame, unmount } = await renderWithWidth(60, props);
-    expect(lastFrame()).toMatchSnapshot();
+    const { lastFrame, unmount } = await renderWithWidth(120, props);
+    const output = lastFrame();
+    expect(output).toContain('0 open files');
+    expect(output).toContain('0 context files');
+    expect(output).toContain('0 memories');
+    expect(output).toContain('0 messages');
+    expect(output).toContain('0 MCP servers');
+    expect(output).toContain('0 skills');
+    expect(output).toContain('0 background processes');
     unmount();
   });
 });
