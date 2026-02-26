@@ -40,90 +40,55 @@ export const ContextSummaryDisplay: React.FC<ContextSummaryDisplayProps> = ({
   const blockedMcpServerCount = blockedMcpServers?.length || 0;
   const openFileCount = ideContext?.workspaceState?.openFiles?.length ?? 0;
 
-  if (
-    geminiMdFileCount === 0 &&
-    memoryCount === 0 &&
-    chatHistoryCount === 0 &&
-    mcpServerCount === 0 &&
-    blockedMcpServerCount === 0 &&
-    openFileCount === 0 &&
-    skillCount === 0 &&
-    backgroundProcessCount === 0
-  ) {
-    return <Text> </Text>; // Render an empty space to reserve height
-  }
-
-  const openFilesText = (() => {
-    if (openFileCount === 0) {
-      return '';
-    }
-    return `${openFileCount} open file${
-      openFileCount > 1 ? 's' : ''
-    } (ctrl+g to view)`;
-  })();
+  const openFilesText = (() =>
+    `${openFileCount} open file${
+      openFileCount !== 1 ? 's' : ''
+    } (ctrl+g to view)`)();
 
   const geminiMdText = (() => {
-    if (geminiMdFileCount === 0) {
-      return '';
-    }
-    const allNamesTheSame = new Set(contextFileNames).size < 2;
+    const allNamesTheSame =
+      contextFileNames.length > 0 && new Set(contextFileNames).size < 2;
     const name = allNamesTheSame ? contextFileNames[0] : 'context';
     return `${geminiMdFileCount} ${name} file${
-      geminiMdFileCount > 1 ? 's' : ''
+      geminiMdFileCount !== 1 ? 's' : ''
     }`;
   })();
 
-  const memoryText = (() => {
-    if (memoryCount === 0) {
-      return '';
-    }
-    return `${memoryCount} memor${memoryCount > 1 ? 'ies' : 'y'}`;
-  })();
+  const memoryText = (() =>
+    `${memoryCount} memor${memoryCount !== 1 ? 'ies' : 'y'}`)();
 
-  const chatHistoryText = (() => {
-    if (chatHistoryCount === 0) {
-      return '';
-    }
-    return `${chatHistoryCount} message${chatHistoryCount > 1 ? 's' : ''}`;
-  })();
+  const chatHistoryText = (() =>
+    `${chatHistoryCount} message${chatHistoryCount !== 1 ? 's' : ''}`)();
 
   const mcpText = (() => {
     if (mcpServerCount === 0 && blockedMcpServerCount === 0) {
-      return '';
+      return '0 MCP servers';
     }
 
     const parts = [];
-    if (mcpServerCount > 0) {
+    if (mcpServerCount > 0 || blockedMcpServerCount === 0) {
       parts.push(
-        `${mcpServerCount} MCP server${mcpServerCount > 1 ? 's' : ''}`,
+        `${mcpServerCount} MCP server${mcpServerCount !== 1 ? 's' : ''}`,
       );
     }
 
     if (blockedMcpServerCount > 0) {
       let blockedText = `${blockedMcpServerCount} Blocked`;
       if (mcpServerCount === 0) {
-        blockedText += ` MCP server${blockedMcpServerCount > 1 ? 's' : ''}`;
+        blockedText += ` MCP server${blockedMcpServerCount !== 1 ? 's' : ''}`;
       }
       parts.push(blockedText);
     }
     return parts.join(', ');
   })();
 
-  const skillText = (() => {
-    if (skillCount === 0) {
-      return '';
-    }
-    return `${skillCount} skill${skillCount > 1 ? 's' : ''}`;
-  })();
+  const skillText = (() =>
+    `${skillCount} skill${skillCount !== 1 ? 's' : ''}`)();
 
-  const backgroundText = (() => {
-    if (backgroundProcessCount === 0) {
-      return '';
-    }
-    return `${backgroundProcessCount} Background process${
-      backgroundProcessCount > 1 ? 'es' : ''
-    }`;
-  })();
+  const backgroundText = (() =>
+    `${backgroundProcessCount} background process${
+      backgroundProcessCount !== 1 ? 'es' : ''
+    }`)();
 
   const summaryParts = [
     openFilesText,
